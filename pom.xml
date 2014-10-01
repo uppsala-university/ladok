@@ -10,7 +10,7 @@
 	<name>Ladok 3</name>
 
 	<modules>
-		<module>ladok3atom-reader</module>
+		<module>ladok3atom-client</module>
 	</modules>
 
 	<properties>
