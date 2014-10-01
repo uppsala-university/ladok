@@ -16,15 +16,6 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
-<!--
-	<repositories>
-		<repository>
-			<id>uu</id>
-			<name>UU-repo</name>
-			<url>https://hudson.its.uu.se/artifactory/uu</url>
-		</repository>
-	</repositories>
--->
 
 	<build>
 		<pluginManagement>
