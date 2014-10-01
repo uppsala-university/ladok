@@ -1,4 +1,4 @@
-package se.uu.its.ladok.feeds;
+package se.sunet.ati.ladok.feeds;
 
 import java.io.IOException;
 import java.io.InputStream;

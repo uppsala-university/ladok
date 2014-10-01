@@ -1,4 +1,4 @@
-package se.uu.its.ladok.feeds;
+package se.sunet.ati.ladok.feeds;
 
 import org.apache.abdera.model.Entry;
 

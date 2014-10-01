@@ -1,4 +1,4 @@
-package se.uu.its.ladok.feeds.dto;
+package se.sunet.ati.ladok.feeds.dto;
 
 import java.util.Date;
 

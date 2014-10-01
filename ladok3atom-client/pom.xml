@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
-		<groupId>se.uu.its.ladok</groupId>
+		<groupId>se.sunet.ati.ladok</groupId>
 		<artifactId>ladok</artifactId>
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>

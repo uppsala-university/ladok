@@ -5,8 +5,8 @@ import java.util.List;
 import org.apache.abdera.model.Entry;
 import org.junit.Test;
 
-import se.uu.its.ladok.feeds.EventUtils;
-import se.uu.its.ladok.feeds.FeedFetcher;
+import se.sunet.ati.ladok.feeds.EventUtils;
+import se.sunet.ati.ladok.feeds.FeedFetcher;
 
 public class FeedFetcherTest {
 	
