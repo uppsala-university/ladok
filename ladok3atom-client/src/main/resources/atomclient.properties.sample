@@ -1,0 +1,3 @@
+feedbase=https://api.mit.ladok.se/uppfoljning/events/
+certificateFile=<filename or certificate>
+certificatePwd=<password for certificate>
