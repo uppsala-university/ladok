@@ -1,4 +1,4 @@
-package se.sunet.ati.ladok.feeds;
+package se.sunet.ati.ladok.atom;
 
 import java.io.File;
 import java.io.IOException;

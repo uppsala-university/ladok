@@ -1,4 +1,4 @@
-package se.sunet.ati.ladok.feeds;
+package se.sunet.ati.ladok.atom;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -21,7 +21,7 @@ import org.apache.abdera.protocol.client.util.ClientAuthSSLProtocolSocketFactory
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-public class FeedFetcher {
+public class AtomClient {
 
 	public static String TOO_MANY_EVENTS_REQUESTED = "Too many events requested :-(";
 	private String feedBase = null;
@@ -35,12 +35,12 @@ public class FeedFetcher {
 	private boolean useCert = true;
 
 
-	public FeedFetcher() throws Exception {
+	public AtomClient() throws Exception {
 		properties = new Properties();
 		try {
-			InputStream in = this.getClass().getClassLoader().getResourceAsStream("feedfetcher.properties");
+			InputStream in = this.getClass().getClassLoader().getResourceAsStream("atomclient.properties");
 			if (in == null) {
-				throw new Exception("Unable to find feedfetcher.properties (see feedfetcher.properties.sample)");
+				throw new Exception("Unable to find feedfetcher.properties (see atomclient.properties.sample)");
 			}
 			properties.load(in);
 			if ((feedBase=properties.getProperty("feedbase")) == null) {

@@ -1,4 +1,4 @@
-package se.sunet.ati.ladok.feeds;
+package se.sunet.ati.ladok.atom;
 
 import org.apache.abdera.model.Entry;
 import org.apache.commons.logging.Log;
