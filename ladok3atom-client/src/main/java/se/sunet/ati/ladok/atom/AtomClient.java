@@ -106,11 +106,17 @@ public class AtomClient {
 		log.info("Fetching feed: " + url);
 		try {
 			ClientResponse resp = this.getClient().get(url);
+			
 			if (resp.getType() == ResponseType.SUCCESS) {
 				Document<Feed> doc = resp.getDocument();
 				System.out.println(doc.getRoot().getTitle());
 				return (doc.getRoot());
 			} else {
+				
+				// Only accept success or client error (logical error).
+				if (resp.getType() != ResponseType.CLIENT_ERROR )
+					throw new UnexpectedClientResponseException(resp.getType().toString());
+				
 				return (null);
 			}
 		} catch (Exception e) {
@@ -177,34 +183,38 @@ public class AtomClient {
 	public List<Entry> getEntries(int fromNr, int toNr) throws Exception {
 		log.info("Attempting to get events " + fromNr + " to " + toNr);
 		Feed f = this.getFeedFromNr(fromNr > 0 ? fromNr -1 : fromNr);
+		
 		List<Entry> allEntries = new ArrayList<Entry>();
 
-		List<Entry> feedEntries = this.sortEntriesFromFeed(f);
-		for (Entry e : feedEntries) {
-			if (EventUtils.getEventNumber(e) <= toNr) {
-				allEntries.add(e);
+		if (f != null) {
+			List<Entry> feedEntries = this.sortEntriesFromFeed(f);
+			for (Entry e : feedEntries) {
+				if (EventUtils.getEventNumber(e) <= toNr) {
+					allEntries.add(e);
+				}
 			}
-		}
-		boolean madeItAllTheWay = false;
-		while (f != null && this.getNextUrl(f) != null && !madeItAllTheWay) {
-			f = this.getFeed(this.getNextUrl(f));
-			if (f != null) {	
-				feedEntries = this.sortEntriesFromFeed(f);
-				for (Entry e : feedEntries) {
-					if (EventUtils.getEventNumber(e) <= toNr) {
-						allEntries.add(e);
-					} else {
-						madeItAllTheWay = true;
-						break;
+			boolean madeItAllTheWay = false;
+			while (f != null && this.getNextUrl(f) != null && !madeItAllTheWay) {
+				f = this.getFeed(this.getNextUrl(f));
+				if (f != null) {
+					feedEntries = this.sortEntriesFromFeed(f);
+					for (Entry e : feedEntries) {
+						if (EventUtils.getEventNumber(e) <= toNr) {
+							allEntries.add(e);
+						} else {
+							madeItAllTheWay = true;
+							break;
+						}
 					}
 				}
 			}
+			//if (!madeItAllTheWay) {
+			//	log.error("Aieee!!! Unable to get all requested entries...");
+			//	throw new Exception(TOO_MANY_EVENTS_REQUESTED);
+			//}
+			log.info("Found " + allEntries.size() + " entries");
 		}
-		//if (!madeItAllTheWay) {
-		//	log.error("Aieee!!! Unable to get all requested entries...");
-		//	throw new Exception(TOO_MANY_EVENTS_REQUESTED);
-		//}
-		log.info("Found " + allEntries.size() + " entries");
+		
 		return (allEntries);
 	}
 

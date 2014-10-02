@@ -14,9 +14,14 @@ public class AtomClientTest {
 	public void testAtomClient() throws Exception {
 		AtomClient ac = new AtomClient();	
 		List<Entry> entries = ac.getEntries(0, 43);
-		System.out.println("Found " + entries.size() + " entries");
-		for(Entry e : entries) {
-			System.out.println(e.getId());
+		
+		if (entries != null) {
+			System.out.println("Found " + entries.size() + " entries");
+			for(Entry e : entries) {
+				System.out.println(e.getId());
+			}
+		} else {
+			System.out.println("No entries found.");
 		}
 	}
 
