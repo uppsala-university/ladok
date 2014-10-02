@@ -32,7 +32,7 @@ public class AtomClient {
 
 	private Properties properties;
 
-	private boolean useCert = true;
+	private boolean useCert = false;
 
 
 	public AtomClient() throws Exception {
@@ -42,17 +42,39 @@ public class AtomClient {
 			if (in == null) {
 				throw new Exception("Unable to find feedfetcher.properties (see atomclient.properties.sample)");
 			}
+			
 			properties.load(in);
+			
 			if ((feedBase=properties.getProperty("feedbase")) == null) {
 				throw new Exception("Missing property \"feedbase\"");
 			}
-			if ((certificateFile=properties.getProperty("certificateFile")) == null) {
-				//	throw new Exception("Missing property \"certificateFile\"");
-				useCert = false;
+
+			if (feedBase.startsWith("https")) {
+				useCert = true;
 			}
-			if ((certificatePwd=properties.getProperty("certificatePwd")) == null) {
-				//	throw new Exception("Missing property \"certificatePwd\"");
+			
+			// Check certificate and password.
+			if (useCert) {
+				
+				certificateFile = properties.getProperty("certificateFile");
+				if (certificateFile == null || certificateFile.equals("")) {
+					throw new Exception("Missing property \"certificateFile\".");					
+				}
+				
+				if (this.getClass().getClassLoader().getResourceAsStream(certificateFile) == null) {
+					throw new Exception("Property \"certificateFile\" have no corresponding resource.");
+				}
+				
+				log.info("certificate=" + certificateFile);
+				
+				certificatePwd = properties.getProperty("certificatePwd");
+				if (certificatePwd == null || certificatePwd.equals("")) {
+					throw new Exception("Missing property \"certificatePwd\".");					
+				}
+				
 			}
+			
+
 		}
 		catch (IOException e) {
 			log.error("Unable to read feedfetcher.properties");
@@ -61,7 +83,7 @@ public class AtomClient {
 	}
 
 	private AbderaClient getClient() throws Exception {
-		log.info("useCert =" + useCert);
+		log.info("useCert=" + useCert);
 		Abdera abdera = new Abdera();
 		AbderaClient client = new AbderaClient(abdera);
 		KeyStore keystore;
