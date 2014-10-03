@@ -10,6 +10,7 @@
 
 	<modules>
 		<module>ladok3atom-client</module>
+		<module>ladok3atom-dto</module>
   	</modules>
 
 	<properties>
