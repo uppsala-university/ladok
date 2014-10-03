@@ -9,4 +9,5 @@ release.properties
 .vagrant
 *.p12
 smx/
-feedfetcher.properties
+.DS_Store
+atomclient.properties
