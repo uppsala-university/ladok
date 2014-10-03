@@ -13,6 +13,6 @@ För att hantera de informationsobjekt som respektive tekniskt gränssnitt anvä
 
 där informationsobjekten är helt fristående och där respektive klient har ett bereoende till det bibliotek som innehåller de informationsobjekt som är kopplade till aktuellt tekniskt gränssnitt. 
 
-För att hantera händelserna i java-kod på ett objektorienterat sätt behövs en översättning mellan XML-representationen och java-koden. Det som inom datavetenskap kallas deserialisering eller marchalling. Den omvända vägen, att ta objektrepresentation ur minnet för att skriva till disk eller transportera kallas serialisering eller unmarchalling. Översättningsrutinerna behövs både för REST och ATOM och gemensamma rutiner finns samplade i projektet
+För att hantera händelserna i java-kod på ett objektorienterat sätt behövs en översättning mellan XML-representationen och java-koden. Det som inom datavetenskap kallas deserialisering eller marchalling. Den omvända vägen, att ta objektrepresentation ur minnet för att skriva till disk eller transportera kallas serialisering eller unmarchalling. Översättningsrutinerna behövs både för REST och ATOM och gemensamma rutiner finns samlade i projektet
 
 * ladok3-dto-common
