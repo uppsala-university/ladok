@@ -7,6 +7,8 @@ import java.io.InputStream;
 import java.security.KeyStore;
 import java.util.Properties;
 
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
 
@@ -23,7 +25,7 @@ public class StudentTjanstImpl implements StudentTjanst {
 	private String certificatePwd = null;
 	private Properties properties;
 
-    String studiedeltagandeUrl="studiedeltagande/";
+    String studiedeltagandeUrl = "studiedeltagande/";
     WebTarget studiedeltagande;
 	private String restBase;
 
@@ -65,10 +67,17 @@ public class StudentTjanstImpl implements StudentTjanst {
 
 		KeyStore keystore;
 		try {
+			SSLContext sc = SSLContext.getInstance("SSLv3");
+			KeyManagerFactory kmf = KeyManagerFactory.getInstance( KeyManagerFactory.getDefaultAlgorithm() );			
+			
 			keystore = KeyStore.getInstance("PKCS12");
 			keystore.load(this.getClass().getClassLoader().getResourceAsStream(certificateFile), certificatePwd.toCharArray());
+			
+			kmf.init( keystore, certificatePwd.toCharArray() );
+			sc.init( kmf.getKeyManagers(), null, null );
+			
 			ClientBuilder cb = ClientBuilder.newBuilder();
-			cb.keyStore(keystore, (String)null);
+			cb.keyStore(keystore, certificatePwd);
 			studiedeltagande = cb.build().target(restBase+studiedeltagandeUrl);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
@@ -80,7 +89,10 @@ public class StudentTjanstImpl implements StudentTjanst {
 
     @Override
     public Student hamtaStudentViaPersonnummer(String personnummer) throws Exception {
-        return studiedeltagande.path("student/personnummer/" + personnummer)
+        
+    	log.info("Query URL: " +  restBase + studiedeltagandeUrl + "student/personnummer/" + personnummer);
+    	
+    	return studiedeltagande.path("student/personnummer/" + personnummer)
                 .request(APPLICATION_JSON_TYPE).get(Student.class);
     }
 
