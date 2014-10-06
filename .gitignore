@@ -11,3 +11,4 @@ release.properties
 smx/
 .DS_Store
 atomclient.properties
+restclient.properties
