@@ -20,14 +20,18 @@ import se.sunet.ati.ladok.rest.dto.studiedeltagande.Student;
 import se.sunet.ati.ladok.rest.studiedeltagande.StudentTjanst;
 
 public class StudentTjanstImpl implements StudentTjanst {
+	
+	private static final String APPLICATION_LADOK_STUDIEDELTAGANDE_XML = "application/vnd.ladok-studiedeltagande+xml";
+
 	private Log log = LogFactory.getLog(this.getClass());
+	
 	private String certificateFile = null;
 	private String certificatePwd = null;
+	private String restBase;
 	private Properties properties;
 
     String studiedeltagandeUrl = "studiedeltagande/";
     WebTarget studiedeltagande;
-	private String restBase;
 
     public StudentTjanstImpl() throws Exception {
 		properties = new Properties();
@@ -91,9 +95,10 @@ public class StudentTjanstImpl implements StudentTjanst {
     public Student hamtaStudentViaPersonnummer(String personnummer) throws Exception {
         
     	log.info("Query URL: " +  restBase + studiedeltagandeUrl + "student/personnummer/" + personnummer);
+    	log.info("Resonse type: " + APPLICATION_LADOK_STUDIEDELTAGANDE_XML.toString());
     	
     	return studiedeltagande.path("student/personnummer/" + personnummer)
-                .request(APPLICATION_JSON_TYPE).get(Student.class);
+                .request(APPLICATION_LADOK_STUDIEDELTAGANDE_XML).get(Student.class);
     }
 
     
