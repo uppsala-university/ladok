@@ -1,4 +1,4 @@
-# Klient för REST-gränssnitt
+# Klient för Atom-gränssnitt
 För att använda klienten som används för att hämta händelser från Ladok's ATOM-gränssnitt måste ett certifikat användas. 
 
 Kopiera ett giltigt klientcertifikat för Ladok3 till katalogen `src/main/resources/`. Certifikatet ska vara på PKCS 12-format.
