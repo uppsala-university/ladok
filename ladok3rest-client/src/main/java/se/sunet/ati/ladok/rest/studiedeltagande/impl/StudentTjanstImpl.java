@@ -22,7 +22,8 @@ import se.sunet.ati.ladok.rest.studiedeltagande.StudentTjanst;
 public class StudentTjanstImpl implements StudentTjanst {
 	
 	private static final String APPLICATION_LADOK_STUDIEDELTAGANDE_XML = "application/vnd.ladok-studiedeltagande+xml";
-
+	private static final String APPLICATION_LADOK_STUDIEDELTAGANDE_JSON = "application/vnd.ladok-studiedeltagande+json";
+	
 	private Log log = LogFactory.getLog(this.getClass());
 	
 	private String certificateFile = null;
@@ -98,7 +99,7 @@ public class StudentTjanstImpl implements StudentTjanst {
     	log.info("Resonse type: " + APPLICATION_LADOK_STUDIEDELTAGANDE_XML.toString());
     	
     	return studiedeltagande.path("student/personnummer/" + personnummer)
-                .request(APPLICATION_LADOK_STUDIEDELTAGANDE_XML).get(Student.class);
+                .request(APPLICATION_LADOK_STUDIEDELTAGANDE_JSON).get(Student.class);
     }
 
     
