@@ -1,5 +1,5 @@
 # Ladok integrationskod
-Projektet innehåller generell java-kod för att integrera mot nya Ladok's tekniska gränssnitt. 
+Projektet innehåller generell java-kod för att integrera mot nya Ladok's tekniska gränssnitt på ett objektorienterat sätt.
 
 Eftersom att nya Ladok i huvudsak tillhandahåller två typer av tekniska gränssnitt - REST och ATOM - är projektet i huvudsak uppdelat i två delar:
 
