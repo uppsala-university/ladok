@@ -21,7 +21,7 @@ import se.sunet.ati.ladok.rest.studiedeltagande.StudentTjanst;
 
 public class StudentTjanstImpl implements StudentTjanst {
 	
-	private static final String MEDIATYPE_APPLICATION_LADOK_STUDIEDELTAGANDE = "application/vnd.ladok-studiedeltagande";
+	private static final String RESPONSE_TYPE_STUDIEDELTAGANDE = "application/vnd.ladok-studiedeltagande";
 	
 	private Log log = LogFactory.getLog(this.getClass());
 	
@@ -96,10 +96,10 @@ public class StudentTjanstImpl implements StudentTjanst {
     public Student hamtaStudentViaPersonnummer(String personnummer) throws Exception {
         
     	log.info("Query URL: " +  restBase + studiedeltagandeUrl + "student/personnummer/" + personnummer);
-    	log.info("Response type: " + MEDIATYPE_APPLICATION_LADOK_STUDIEDELTAGANDE.toString() + mediaType);
+    	log.info("Requested response type: " + RESPONSE_TYPE_STUDIEDELTAGANDE.toString() + mediaType);
     	
     	return studiedeltagande.path("student/personnummer/" + personnummer)
-                .request(MEDIATYPE_APPLICATION_LADOK_STUDIEDELTAGANDE + mediaType).get(Student.class);
+                .request(RESPONSE_TYPE_STUDIEDELTAGANDE + mediaType).get(Student.class);
     }
 
     
