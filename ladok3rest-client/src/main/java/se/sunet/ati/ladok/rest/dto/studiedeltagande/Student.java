@@ -6,34 +6,27 @@ import java.util.List;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-@XmlRootElement
+@XmlRootElement(name = "Student", namespace = "http://schemas.ladok.se")
 public class Student implements Serializable {
 	
 	private static final long serialVersionUID = 1L;
 	
-	@XmlElement(name="Uid") 
 	String uid;
-	
-	@XmlElement(name="Personnummer") 
 	String personnummer;
-	
-	@XmlElement(name="Fornamn") 
 	String fornamn;
-	
-	@XmlElement(name="Efternamn") 
 	String efternamn;
-	
-	@XmlElement(name="link") 
 	List<Link> links;
+
+	@XmlElement(name = "Uid", namespace = "http://schemas.ladok.se")
+	public void setUid(String uid) {
+		this.uid = uid;
+	}
 	
 	public String getUid() {
 		return uid;
 	}
 
-	public void setUid(String uid) {
-		this.uid = uid;
-	}
-
+	@XmlElement(name = "Personnummer", namespace = "http://schemas.ladok.se") 
 	public String getPersonnummer() {
 		return personnummer;
 	}
@@ -42,6 +35,7 @@ public class Student implements Serializable {
 		this.personnummer = personnummer;
 	}
 
+	@XmlElement(name = "Fornamn", namespace = "http://schemas.ladok.se") 	
 	public String getFornamn() {
 		return fornamn;
 	}
@@ -50,6 +44,7 @@ public class Student implements Serializable {
 		this.fornamn = fornamn;
 	}
 
+	@XmlElement(name = "Efternamn", namespace = "http://schemas.ladok.se") 
 	public String getEfternamn() {
 		return efternamn;
 	}
@@ -58,11 +53,12 @@ public class Student implements Serializable {
 		this.efternamn = efternamn;
 	}
 
+	@XmlElement(name = "link", namespace = "http://schemas.ladok.se") 
 	public List<Link> getLink() {
 		return links;
 	}
 
-	public void setLinks(List<Link> links) {
+	public void setLink(List<Link> links) {
 		this.links = links;
 	}
 

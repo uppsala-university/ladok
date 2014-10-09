@@ -1,7 +1,5 @@
 package se.sunet.ati.ladok.rest.studiedeltagande.impl;
 
-import static javax.ws.rs.core.MediaType.APPLICATION_JSON_TYPE;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.KeyStore;
@@ -11,10 +9,8 @@ import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.glassfish.jersey.client.ClientConfig;
 
 import se.sunet.ati.ladok.rest.dto.studiedeltagande.Student;
 import se.sunet.ati.ladok.rest.studiedeltagande.StudentTjanst;
@@ -28,7 +24,7 @@ public class StudentTjanstImpl implements StudentTjanst {
 	private String certificateFile = null;
 	private String certificatePwd = null;
 	private String restBase;
-	private String mediaType = "+json";
+	private String mediaType = "+xml";
 	private Properties properties;
 
     String studiedeltagandeUrl = "studiedeltagande/";
@@ -43,21 +39,19 @@ public class StudentTjanstImpl implements StudentTjanst {
 			}
 
 			properties.load(in);
-			if ((restBase=properties.getProperty("restbase")) == null) {
+
+			if ((restBase = properties.getProperty("restbase")) == null) {
 				throw new Exception("Missing property \"restbase\"");
 			}
 
 			// Check certificate and password.
-
 			certificateFile = properties.getProperty("certificateFile");
 			if (certificateFile == null || certificateFile.equals("")) {
 				throw new Exception("Missing property \"certificateFile\".");					
 			}
-
 			if (this.getClass().getClassLoader().getResourceAsStream(certificateFile) == null) {
 				throw new Exception("Property \"certificateFile\" have no corresponding resource.");
 			}
-
 			log.info("certificate=" + certificateFile);
 
 			certificatePwd = properties.getProperty("certificatePwd");
@@ -83,7 +77,7 @@ public class StudentTjanstImpl implements StudentTjanst {
 			
 			ClientBuilder cb = ClientBuilder.newBuilder();
 			cb.keyStore(keystore, certificatePwd);
-			studiedeltagande = cb.build().target(restBase+studiedeltagandeUrl);
+			studiedeltagande = cb.build().target(restBase + studiedeltagandeUrl);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -94,12 +88,14 @@ public class StudentTjanstImpl implements StudentTjanst {
 
     @Override
     public Student hamtaStudentViaPersonnummer(String personnummer) throws Exception {
-        
+    
     	log.info("Query URL: " +  restBase + studiedeltagandeUrl + "student/personnummer/" + personnummer);
     	log.info("Requested response type: " + RESPONSE_TYPE_STUDIEDELTAGANDE.toString() + mediaType);
     	
     	return studiedeltagande.path("student/personnummer/" + personnummer)
                 .request(RESPONSE_TYPE_STUDIEDELTAGANDE + mediaType).get(Student.class);
+//    	return studiedeltagande.path("student/personnummer/" + personnummer)
+//                .request(RESPONSE_TYPE_STUDIEDELTAGANDE + mediaType).get(String.class);    	
     }
 
     
