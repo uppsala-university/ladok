@@ -102,7 +102,7 @@ public class AtomClient {
 		}
 	}
 
-	public Feed getFeed(String url) {
+	private Feed getFeed(String url) {
 		log.info("Fetching feed: " + url);
 		try {
 			ClientResponse resp = this.getClient().get(url);
@@ -126,10 +126,6 @@ public class AtomClient {
 		}
 	}
 
-	private Feed getFeedFromNr(long fromNr) {
-		return (this.getFeed(feedBase + fromNr + "-up"));
-	}
-
 	/**
 	 * Försöker hämta samtliga händelser från och med händelse med nummer
 	 * "fromNr" men hämtar aldrig fler än MAX_ENTRIES_PER_RUN händelser per
@@ -138,9 +134,12 @@ public class AtomClient {
 	 * @param fromNr
 	 * @return
 	 */
-	public List<Entry> getEntries(long fromNr) {
-		log.info("Attempting to get all events starting from number " + fromNr);
-		Feed f = this.getFeedFromNr(fromNr > 0 ? fromNr -1 : fromNr);
+	public List<Entry> getEntries(String feedIdAndEntryId) {
+		log.info("Attempting to get all events starting from  " + feedIdAndEntryId);
+		
+		String feedId = feedIdAndEntryId.split(";")[0];
+		
+		Feed f = getFeed(feedBase + fromNr > 0 ? fromNr -1 : fromNr);
 		List<Entry> entries = new ArrayList<Entry>();
 		if (f != null) {
 			entries.addAll(this.sortEntriesFromFeed(f));
