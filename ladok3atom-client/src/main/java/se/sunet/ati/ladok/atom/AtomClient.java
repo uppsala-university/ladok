@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.KeyStore;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 
@@ -23,6 +24,7 @@ import org.apache.commons.logging.LogFactory;
 
 public class AtomClient {
 
+	private static final String FEED_ENTRY_SEPARATOR = ";";
 	public static String TOO_MANY_EVENTS_REQUESTED = "Too many events requested :-(";
 	private String feedBase = null;
 	private String certificateFile = null;
@@ -134,25 +136,12 @@ public class AtomClient {
 	 * @param fromNr
 	 * @return
 	 */
-	public List<Entry> getEntries(String feedIdAndEntryId) {
-		log.info("Attempting to get all events starting from  " + feedIdAndEntryId);
-		
-		String feedId = feedIdAndEntryId.split(";")[0];
-		
-		Feed f = getFeed(feedBase + fromNr > 0 ? fromNr -1 : fromNr);
-		List<Entry> entries = new ArrayList<Entry>();
-		if (f != null) {
-			entries.addAll(this.sortEntriesFromFeed(f));
-			while (f != null && this.getNextUrl(f) != null && entries.size() < MAX_ENTRIES_PER_RUN) {
-				f = this.getFeed(this.getNextUrl(f));
-				if (f != null) {
-					entries.addAll(this.sortEntriesFromFeed(f));
-				}
-			}
-			log.info("Started from " + fromNr + " and found " + entries.size()
-					+ " entries");
-		}
-		return (entries);
+	public List<Entry> getEntries(String feedIdAndLastEntryId) {
+		log.info("Attempting to get all events starting from  " + feedIdAndLastEntryId);
+		String[] parsed = feedIdAndLastEntryId.split(FEED_ENTRY_SEPARATOR);
+		String feedId = parsed[0];
+		String entryId = parsed[1];
+		return getEntries(feedId, entryId);
 	}
 
 
@@ -163,94 +152,40 @@ public class AtomClient {
 	 * @param f
 	 * @return
 	 */
-	private List<Entry> sortEntriesFromFeed(Feed f) {
-		List<Entry> entries = new ArrayList<Entry>();
-		for ( int i = f.getEntries().size() ;i > 0 ; i-- ) {
-			entries.add(f.getEntries().get(i-1)) ;
-		}
-		return(entries);
-	}
-
-	public List<Entry> getEntries(String latestReadFeed, String latestReadId) throws Exception {
-		
-		log.info("Attempting to get max " + MAX_ENTRIES_PER_RUN + " events from latest feed " + latestReadFeed + "and up.");
-		Feed f = this.getFeed(latestReadFeed);
-		List<Entry> allEntries = new ArrayList<Entry>();
-		boolean found = false;
-		
-		if (f != null) {
-			List<Entry> feedEntries = this.sortEntriesFromFeed(f);
-			for (Entry e : feedEntries) {
-				// Do not add entries already read.
-				if (!found && !e.getId().toString().equalsIgnoreCase(latestReadId)) {
-					allEntries.add(e);
-				}
-			}	
-			boolean madeItAllTheWay = false;
-			while (f != null && this.getNextUrl(f) != null && !madeItAllTheWay) {
-				f = this.getFeed(this.getNextUrl(f));
-				if (f != null) {
-					feedEntries = this.sortEntriesFromFeed(f);
-					for (Entry e : feedEntries) {
-						if (allEntries.size() < MAX_ENTRIES_PER_RUN) {
-							allEntries.add(e);
-						} else {
-							madeItAllTheWay = true;
-							break;
-						}
-					}
-				}
-			}			
-		}
-		
-		return allEntries;
+	private List<Entry> getSortedEntriesFromFeed(Feed f) {
+		List<Entry> entries = new ArrayList<Entry>(f.getEntries());
+		Collections.reverse(entries);
+		return entries;
 	}
 	
-	/**
-	 * Försöker hämta händelser från och med händelse med nummer "fromNr" till
-	 * och med "toNr"
-	 * 
-	 * @param fromNr
-	 * @return
-	 * @throws Exception
-	 */
-	public List<Entry> getEntries(int fromNr, int toNr) throws Exception {
-		
-		log.info("Attempting to get events " + fromNr + " to " + toNr);
-		Feed f = this.getFeedFromNr(fromNr > 0 ? fromNr -1 : fromNr);
-		
-		List<Entry> allEntries = new ArrayList<Entry>();
-
-		if (f != null) {
-			List<Entry> feedEntries = this.sortEntriesFromFeed(f);
-			for (Entry e : feedEntries) {
-				if (EventUtils.getEventNumber(e) <= toNr) {
-					allEntries.add(e);
-				}
+	private List<Entry> filterOlderEntries(List<Entry> entries, String entryId) {
+		int index = 0;
+		for (Entry entry : entries) {
+			index++;
+			if (entry.getId().toString().equals(entryId)) {
+				break;
 			}
-			boolean madeItAllTheWay = false;
-			while (f != null && this.getNextUrl(f) != null && !madeItAllTheWay) {
-				f = this.getFeed(this.getNextUrl(f));
-				if (f != null) {
-					feedEntries = this.sortEntriesFromFeed(f);
-					for (Entry e : feedEntries) {
-						if (EventUtils.getEventNumber(e) <= toNr) {
-							allEntries.add(e);
-						} else {
-							madeItAllTheWay = true;
-							break;
-						}
-					}
-				}
-			}
-			//if (!madeItAllTheWay) {
-			//	log.error("Aieee!!! Unable to get all requested entries...");
-			//	throw new Exception(TOO_MANY_EVENTS_REQUESTED);
-			//}
-			log.info("Found " + allEntries.size() + " entries");
 		}
-		
-		return (allEntries);
+		List<Entry> result = entries.subList(index, entries.size());
+		return result;
+	}
+	
+	public List<Entry> getEntries(String feedId, String lastReadEntryId) {
+		log.info("Attempting to get max " + MAX_ENTRIES_PER_RUN + " events from latest feed " + feedId + " and up.");
+		Feed f = getFeed(feedBase + feedId);
+		List<Entry> entries = new ArrayList<Entry>();
+		if (f != null) {
+			entries.addAll(filterOlderEntries(getSortedEntriesFromFeed(f), lastReadEntryId));
+			while (f != null && getNextUrl(f) != null && entries.size() < MAX_ENTRIES_PER_RUN) {
+				f = getFeed(getNextUrl(f));
+				if (f != null) {
+					entries.addAll(getSortedEntriesFromFeed(f));
+				}
+			}
+			log.info("Started from " +  lastReadEntryId + " in feed " + feedId + " and found " + entries.size()
+					+ " entries");
+		}
+		return entries;
 	}
 
 	/**
@@ -264,13 +199,10 @@ public class AtomClient {
 		for (Link link : f.getLinks()) {
 			if ("next-archive".equalsIgnoreCase(link.getRel())) {
 				retval = link.getAttributeValue("href");
+				retval = retval.replaceAll("http://mit[0-9]+-ladok3.its.umu.se:[0-9]+", "https://api.mit.ladok.se");
+				break;
 			}
 		}
-		//URL:er i MIT-feeden stämmer inte.
-		if(retval != null) {
-			retval = retval.replaceAll("http://mit-ladok3.its.umu.se:8084", "https://api.mit.ladok.se");
-			retval = retval.replaceAll("http://mit-ik-ladok3.its.umu.se:8082", "https://api.mit.ladok.se");
-		}
-		return (retval);
+		return retval;
 	}
 }
