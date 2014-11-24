@@ -40,7 +40,7 @@ public class AtomClient {
 		try {
 			InputStream in = this.getClass().getClassLoader().getResourceAsStream("atomclient.properties");
 			if (in == null) {
-				throw new Exception("Unable to find feedfetcher.properties (see atomclient.properties.sample)");
+				throw new Exception("Unable to find atomclient.properties (see atomclient.properties.sample)");
 			}
 			
 			properties.load(in);
