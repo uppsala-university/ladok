@@ -172,6 +172,41 @@ public class AtomClient {
 		return(entries);
 	}
 
+	public List<Entry> getEntries(String latestReadFeed, String latestReadId) throws Exception {
+		
+		log.info("Attempting to get max " + MAX_ENTRIES_PER_RUN + " events from latest feed " + latestReadFeed + "and up.");
+		Feed f = this.getFeed(latestReadFeed);
+		List<Entry> allEntries = new ArrayList<Entry>();
+		boolean found = false;
+		
+		if (f != null) {
+			List<Entry> feedEntries = this.sortEntriesFromFeed(f);
+			for (Entry e : feedEntries) {
+				// Do not add entries already read.
+				if (!found && !e.getId().toString().equalsIgnoreCase(latestReadId)) {
+					allEntries.add(e);
+				}
+			}	
+			boolean madeItAllTheWay = false;
+			while (f != null && this.getNextUrl(f) != null && !madeItAllTheWay) {
+				f = this.getFeed(this.getNextUrl(f));
+				if (f != null) {
+					feedEntries = this.sortEntriesFromFeed(f);
+					for (Entry e : feedEntries) {
+						if (allEntries.size() < MAX_ENTRIES_PER_RUN) {
+							allEntries.add(e);
+						} else {
+							madeItAllTheWay = true;
+							break;
+						}
+					}
+				}
+			}			
+		}
+		
+		return allEntries;
+	}
+	
 	/**
 	 * Försöker hämta händelser från och med händelse med nummer "fromNr" till
 	 * och med "toNr"
@@ -181,6 +216,7 @@ public class AtomClient {
 	 * @throws Exception
 	 */
 	public List<Entry> getEntries(int fromNr, int toNr) throws Exception {
+		
 		log.info("Attempting to get events " + fromNr + " to " + toNr);
 		Feed f = this.getFeedFromNr(fromNr > 0 ? fromNr -1 : fromNr);
 		

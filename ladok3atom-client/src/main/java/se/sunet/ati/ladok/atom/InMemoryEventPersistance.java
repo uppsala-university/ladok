@@ -9,6 +9,8 @@ public class InMemoryEventPersistance implements EventPersistance {
 	private Log log = LogFactory.getLog(this.getClass());
 	public long nr;
 
+	
+	
 	public InMemoryEventPersistance() {
 		this.nr = 0;
 	}
