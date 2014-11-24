@@ -1,8 +1,8 @@
-package se.sunet.ati.ladok.rest.studiedeltagande;
+package se.sunet.ati.ladok.rest.services;
 
 import se.sunet.ati.ladok.rest.dto.studiedeltagande.Student;
 
-public interface StudentTjanst {
+public interface Studiedeltagande {
 	
 	public Student hamtaStudentViaPersonnummer(String personnummer) throws Exception;
 

@@ -1,4 +1,4 @@
-package se.sunet.ati.ladok.rest.studiedeltagande.test;
+package se.sunet.ati.ladok.rest.services.test;
 
 import static org.junit.Assert.assertNotNull;
 
@@ -22,14 +22,14 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 
 import se.sunet.ati.ladok.rest.dto.studiedeltagande.Student;
-import se.sunet.ati.ladok.rest.studiedeltagande.StudentTjanst;
-import se.sunet.ati.ladok.rest.studiedeltagande.impl.StudentTjanstImpl;
+import se.sunet.ati.ladok.rest.services.Studiedeltagande;
+import se.sunet.ati.ladok.rest.services.impl.StudiedeltagandeImpl;
 
-public class StudentTjanstTest {
+public class StudiedeltagandeTest {
 
 	@Test
 	public void test() throws Exception {
-		StudentTjanst st = new StudentTjanstImpl();
+		Studiedeltagande st = new StudiedeltagandeImpl();
 		Student student = st.hamtaStudentViaPersonnummer("197209128672");
 		assertNotNull(student);
 		System.out.println("\n" + student.toString());

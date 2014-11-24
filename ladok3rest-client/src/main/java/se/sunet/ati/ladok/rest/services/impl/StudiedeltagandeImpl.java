@@ -1,4 +1,4 @@
-package se.sunet.ati.ladok.rest.studiedeltagande.impl;
+package se.sunet.ati.ladok.rest.services.impl;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -9,13 +9,14 @@ import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import se.sunet.ati.ladok.rest.dto.studiedeltagande.Student;
-import se.sunet.ati.ladok.rest.studiedeltagande.StudentTjanst;
+import se.sunet.ati.ladok.rest.services.Studiedeltagande;
 
-public class StudentTjanstImpl implements StudentTjanst {
+public class StudiedeltagandeImpl implements Studiedeltagande {
 	
 	private static final String RESPONSE_TYPE_STUDIEDELTAGANDE = "application/vnd.ladok-studiedeltagande";
 	
@@ -30,7 +31,7 @@ public class StudentTjanstImpl implements StudentTjanst {
     String studiedeltagandeUrl = "studiedeltagande/";
     WebTarget studiedeltagande;
 
-    public StudentTjanstImpl() throws Exception {
+    public StudiedeltagandeImpl() throws Exception {
 		properties = new Properties();
 		try {
 			InputStream in = this.getClass().getClassLoader().getResourceAsStream("restclient.properties");
