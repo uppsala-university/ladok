@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.KeyStore;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
@@ -24,7 +25,7 @@ import org.apache.commons.logging.LogFactory;
 
 public class AtomClient {
 
-	private static final String LINK_NAME_PREVIOUS_ARCHIVE = "previous-archive";
+	private static final String LINK_NAME_PREVIOUS_ARCHIVE = "prev-archive";
 	private static final String LINK_NAME_NEXT_ARCHIVE = "next-archive";
 	private static final String FEED_ENTRY_SEPARATOR = ";";
 	public static String TOO_MANY_EVENTS_REQUESTED = "Too many events requested :-(";
@@ -153,12 +154,15 @@ public class AtomClient {
 	 */
 	private Feed findFirstFeed(Feed f) {
 
+		log.info("findFirstFeed: feed: " + f.getId());
 		Feed previous = getFeed(getPreviousUrl(f));
+		log.info("findFirstFeed: previous: " + previous.getId());
 		Feed first = null;
 		
 		while (previous != null) {
 			first = previous;
-			previous = getFeed(getPreviousUrl(f));
+			previous = getFeed(getPreviousUrl(previous));
+			log.info("findFirstFeed while f=" + first.getId());
 		}
 		
 		return first;		
@@ -174,8 +178,14 @@ public class AtomClient {
 	 */
 	private String findFirstFeedIdAndFirstEntryId(Feed f) {
 		Feed firstFeed = findFirstFeed(f);
-		
-		Entry firstEntry = firstFeed.getEntries().get(firstFeed.getEntries().size() - 1);
+		if (firstFeed == null) {
+			return null;
+		}
+		List<Entry> entries = firstFeed.getEntries();
+		if (entries == null) {
+			return null;
+		}
+		Entry firstEntry = entries.get(entries.size() - 1);
 		
 		return firstFeed.getBaseUri().toString().substring(
 				firstFeed.getBaseUri().toString().lastIndexOf("/") + 1, 
@@ -199,11 +209,14 @@ public class AtomClient {
 
 		String[] parsed = null;
 		
-		if (feedIdAndLastEntryId != null) {
+		if (feedIdAndLastEntryId != null && !feedIdAndLastEntryId.equals("0")) {
 			parsed = feedIdAndLastEntryId.split(FEED_ENTRY_SEPARATOR);
+			log.info("debug:        feedIdAndLastEntryId != null && !feedIdAndLastEntryId.equals");
 		} else {
+			log.info("debug:        else");
 			parsed = findFirstFeedIdAndFirstEntryId(getFeed(lastFeed)).split(FEED_ENTRY_SEPARATOR);
 		}
+		log.info("debug:        parsed:" + Arrays.asList(parsed));
 		
 		if (parsed == null)
 			throw new Exception("Ingen riktig utgångspunkt hittades för frågan.");
@@ -255,7 +268,7 @@ public class AtomClient {
 	 * @param lastReadEntryId Identifierare för senast lästa entry.
 	 * @return En lista av olästa entries.
 	 */
-	public List<Entry> getEntries(String feedId, String lastReadEntryId) {
+	private List<Entry> getEntries(String feedId, String lastReadEntryId) {
 		log.info("Attempting to get max " + MAX_ENTRIES_PER_RUN + " events from latest feed " + feedId + " and up.");
 		Feed f = getFeed(feedBase + feedId);
 		List<Entry> entries = new ArrayList<Entry>();
@@ -309,7 +322,9 @@ public class AtomClient {
 	 * @return URL till föregående arkiv.
 	 */
 	private String getPreviousUrl(Feed f) {
-		return getLinkHref(f, LINK_NAME_PREVIOUS_ARCHIVE);
+		String linkHref = getLinkHref(f, LINK_NAME_PREVIOUS_ARCHIVE);
+		log.info("getPreviousUrl linkHref: " + linkHref);
+		return linkHref;
 	}
 
 }

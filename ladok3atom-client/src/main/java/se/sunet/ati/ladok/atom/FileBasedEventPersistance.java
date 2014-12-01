@@ -29,12 +29,9 @@ public class FileBasedEventPersistance implements EventPersistance {
 	
 	@Override
 	public synchronized Entry saveEntry(Entry e) throws Exception{
-		long current = getCurrentNumber();
-		if (EventUtils.getEventNumber(e) != current + 1) {
-			throw new Exception("Did not expect this message: " + EventUtils.getEventNumber(e));
-		}
+		String eventId = e.getId().toString();
 		Properties prop = new Properties();
-		prop.setProperty(PROPERTY, new Long(EventUtils.getEventNumber(e)).toString());
+		prop.setProperty(PROPERTY, eventId);
 		try {
 			prop.store(new FileOutputStream(FILENAME), null);
 			log.info("Saving message: " + EventUtils.getEventNumber(e));
@@ -42,38 +39,27 @@ public class FileBasedEventPersistance implements EventPersistance {
 		} catch (Exception e1) {
 			e1.printStackTrace();
 			return(null);
-		} 
-	}
-
-	@Override
-	public long getNextEventNumber() {
-		long current = this.getCurrentNumber();
-		if(current == 0) {
-			return(0);
-		}
-		else {
-			return(current + 1);
 		}
 	}
 
 	@Override
 	public boolean isUnseenEntry(Entry e) {
-		long currentNr = this.getCurrentNumber();
-		long eventNr = EventUtils.getEventNumber(e);
-		return(currentNr < eventNr);
+		// TODO
+		return false;
 	}
 	
-	private long getCurrentNumber() {
+	@Override
+	public String getLastReadEntryId() {
 		Properties prop = new Properties();
 		try {
 			prop.load(new FileInputStream(FILENAME));
-			if(prop.containsKey(PROPERTY)) {
-				return(new Long(prop.getProperty(PROPERTY)));
+			if (prop.containsKey(PROPERTY)) {
+				return (prop.getProperty(PROPERTY));
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		return(0);
+		return null;
 		
 	}
 

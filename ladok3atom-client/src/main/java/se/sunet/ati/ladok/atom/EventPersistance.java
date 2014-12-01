@@ -16,14 +16,7 @@ public interface EventPersistance {
 	 * @param e händelse att spara
 	 * @return Den sparade händelsen. Null om inget sparades.
 	 */
-	public abstract Entry saveEntry(Entry e) throws Exception;
-	
-	/**
-	 * Returnerar en siffra som indikerar vilken som är nästa händelse i kön som ska betas av
-	 * 
-	 * @return
-	 */
-	public abstract long getNextEventNumber();
+	public Entry saveEntry(Entry e) throws Exception;
 	
 	/**
 	 * Verifiera om en händelse redan har setts
@@ -32,6 +25,13 @@ public interface EventPersistance {
 	 * 
 	 * @return Returnerar TRUE om händelsen inte har setts ännu
 	 */
-	public abstract boolean isUnseenEntry(Entry e);
+	public boolean isUnseenEntry(Entry e);
+
+	/**
+	 *  Return the latest logged event entry
+	 * 
+	 * @return the latest logged event entry
+	 */
+	public String getLastReadEntryId();
 
 }
