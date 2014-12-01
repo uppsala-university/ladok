@@ -25,9 +25,9 @@ import org.apache.commons.logging.LogFactory;
 
 public class AtomClient {
 
+	public static final String FEED_ENTRY_SEPARATOR = ";";
 	private static final String LINK_NAME_PREVIOUS_ARCHIVE = "prev-archive";
 	private static final String LINK_NAME_NEXT_ARCHIVE = "next-archive";
-	private static final String FEED_ENTRY_SEPARATOR = ";";
 	public static String TOO_MANY_EVENTS_REQUESTED = "Too many events requested :-(";
 	private String feedBase = null;
 	private String lastFeed = null;

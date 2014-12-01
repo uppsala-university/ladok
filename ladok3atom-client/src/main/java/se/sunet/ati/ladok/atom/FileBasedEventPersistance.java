@@ -29,12 +29,15 @@ public class FileBasedEventPersistance implements EventPersistance {
 	
 	@Override
 	public synchronized Entry saveEntry(Entry e) throws Exception{
-		String eventId = e.getId().toString();
+		// TODO: Feed id? :
+		String feedIdAndEventId = e.getDocument().getBaseUri().getPath().replaceAll("^.*/", "")
+				+ AtomClient.FEED_ENTRY_SEPARATOR + e.getId().toString();
+		log.info("saveEntry feedIdAndEventId=" + feedIdAndEventId);
 		Properties prop = new Properties();
-		prop.setProperty(PROPERTY, eventId);
+		prop.setProperty(PROPERTY, feedIdAndEventId);
 		try {
 			prop.store(new FileOutputStream(FILENAME), null);
-			log.info("Saving message: " + EventUtils.getEventNumber(e));
+			log.info("Saving message: " + e.getId().toString());
 			return(e);
 		} catch (Exception e1) {
 			e1.printStackTrace();
