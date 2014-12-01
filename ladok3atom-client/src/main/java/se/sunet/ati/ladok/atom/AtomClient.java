@@ -24,9 +24,12 @@ import org.apache.commons.logging.LogFactory;
 
 public class AtomClient {
 
+	private static final String LINK_NAME_PREVIOUS_ARCHIVE = "previous-archive";
+	private static final String LINK_NAME_NEXT_ARCHIVE = "next-archive";
 	private static final String FEED_ENTRY_SEPARATOR = ";";
 	public static String TOO_MANY_EVENTS_REQUESTED = "Too many events requested :-(";
 	private String feedBase = null;
+	private String lastFeed = null;
 	private String certificateFile = null;
 	private String certificatePwd = null;
 	private Log log = LogFactory.getLog(this.getClass());
@@ -47,10 +50,12 @@ public class AtomClient {
 			
 			properties.load(in);
 			
-			if ((feedBase=properties.getProperty("feedbase")) == null) {
+			if ((feedBase = properties.getProperty("feedbase")) == null) {
 				throw new Exception("Missing property \"feedbase\"");
 			}
 
+			lastFeed = properties.getProperty("lastFeed");
+			
 			if (feedBase.startsWith("https")) {
 				useCert = true;
 			}
@@ -79,11 +84,17 @@ public class AtomClient {
 
 		}
 		catch (IOException e) {
-			log.error("Unable to read feedfetcher.properties");
+			log.error("Unable to read atomclient.properties");
 			throw e;
 		}
 	}
 
+	/**
+	 * Hämtar en klient för att hämta feeds.
+	 * 
+	 * @return En klient som kan returnera feeds.
+	 * @throws Exception Om någonting i certifikatshanteringen fungerar.
+ 	 */
 	private AbderaClient getClient() throws Exception {
 		log.info("useCert=" + useCert);
 		Abdera abdera = new Abdera();
@@ -104,10 +115,16 @@ public class AtomClient {
 		}
 	}
 
+	/**
+	 * Hämtar ett feed-objekt från en given URL.
+	 * 
+	 * @param url URL för den feed som efterfrågas.
+	 * @return Efterfrågad feed.
+	 */
 	private Feed getFeed(String url) {
 		log.info("Fetching feed: " + url);
 		try {
-			ClientResponse resp = this.getClient().get(url);
+			ClientResponse resp = getClient().get(url);
 			
 			if (resp.getType() == ResponseType.SUCCESS) {
 				Document<Feed> doc = resp.getDocument();
@@ -127,30 +144,83 @@ public class AtomClient {
 			return (null);
 		}
 	}
-
+	
 	/**
-	 * Försöker hämta samtliga händelser från och med händelse med nummer
-	 * "fromNr" men hämtar aldrig fler än MAX_ENTRIES_PER_RUN händelser per
-	 * anrop
+	 * Hämtar det första arkivet med händelser i hela systemet.
 	 * 
-	 * @param fromNr
-	 * @return
+	 * @param f Det arkiv som man man utgår från.
+	 * @return Det första arkivet i kedjan av händelsearkiv.
 	 */
-	public List<Entry> getEntries(String feedIdAndLastEntryId) {
+	private Feed findFirstFeed(Feed f) {
+
+		Feed previous = getFeed(getPreviousUrl(f));
+		Feed first = null;
+		
+		while (previous != null) {
+			first = previous;
+			previous = getFeed(getPreviousUrl(f));
+		}
+		
+		return first;		
+	}
+	
+	/**
+	 * Hittar den första händelsen i hela arkivet och returnerar det
+	 * som en sammanslagning tillsammans med identiferare för det arkiv
+	 * som händelsen är dokumenterad i.
+	 * 
+	 * @param f Det arkiv som är utgångspunkten.
+	 * @return Idenfifeiraren för den första händelsen i en sammanslagning med identifieraren för hemvistarkivet.
+	 */
+	private String findFirstFeedIdAndFirstEntryId(Feed f) {
+		Feed firstFeed = findFirstFeed(f);
+		
+		Entry firstEntry = firstFeed.getEntries().get(firstFeed.getEntries().size() - 1);
+		
+		return firstFeed.getBaseUri().toString().substring(
+				firstFeed.getBaseUri().toString().lastIndexOf("/") + 1, 
+				firstFeed.getBaseUri().toString().length()) + 
+			FEED_ENTRY_SEPARATOR + firstEntry.getId().toString();
+	}
+	
+	/**
+	 * Hämta händelser efter den senast lästa men hämtar aldrig fler än 
+	 * MAX_ENTRIES_PER_RUN händelser per anrop.
+	 * 
+	 * Om ingen utgångspunkt för frågan är definierad försöker man utgå från 
+	 * det senaste akrivet defineirat i klientens egenskapsfil.
+	 * 
+	 * @param feedIdAndLastEntryId Identifierare för den senast lästa händelsen inklusive referens till identifieraren för händelsens hemvistakriv.
+	 * @return En lista av händelser.
+	 * @throws Exception Om det inte finns någon riktig utgångspunkt för frågan.
+	 */
+	public List<Entry> getEntries(String feedIdAndLastEntryId) throws Exception {
 		log.info("Attempting to get all events starting from  " + feedIdAndLastEntryId);
-		String[] parsed = feedIdAndLastEntryId.split(FEED_ENTRY_SEPARATOR);
+
+		String[] parsed = null;
+		
+		if (feedIdAndLastEntryId != null) {
+			parsed = feedIdAndLastEntryId.split(FEED_ENTRY_SEPARATOR);
+		} else {
+			parsed = findFirstFeedIdAndFirstEntryId(getFeed(lastFeed)).split(FEED_ENTRY_SEPARATOR);
+		}
+		
+		if (parsed == null)
+			throw new Exception("Ingen riktig utgångspunkt hittades för frågan.");
+		
 		String feedId = parsed[0];
 		String entryId = parsed[1];
+		
 		return getEntries(feedId, entryId);
 	}
 
 
 	/**
-	 * Vänd på alla entry-objekt i en feed. 
-	 * De kommer i fallande kronologisk ordning.
+	 * Vänder på alla händelseobjekt i ett arkiv så att de kommer i 
+	 * fallande kronologisk ordning.
 	 * 
-	 * @param f
-	 * @return
+	 * @param f Arkiv som innehåller de händelser som man vill vända på.
+	 * @return En lista av händelser i kronologisk fallande ordning.
 	 */
 	private List<Entry> getSortedEntriesFromFeed(Feed f) {
 		List<Entry> entries = new ArrayList<Entry>(f.getEntries());
@@ -158,18 +228,33 @@ public class AtomClient {
 		return entries;
 	}
 	
-	private List<Entry> filterOlderEntries(List<Entry> entries, String entryId) {
-		int index = 0;
-		for (Entry entry : entries) {
-			index++;
-			if (entry.getId().toString().equals(entryId)) {
+	/**
+	 * Filtrerar bort de händelser som redan har lästs.
+	 * 
+	 * @param unfilteredEntries Lista av händelser som innehåller både lästa och oläsa händelser.
+	 * @param lastReadEntryId Det senast lästa entryt.
+	 * @return En lista av olästa händelser.
+	 */
+	private List<Entry> filterOlderEntries(List<Entry> unfilteredEntries, String lastReadEntryId) {
+		int indexOfLastReadEntry = 0;
+		for (Entry entry : unfilteredEntries) {
+			indexOfLastReadEntry++;
+			if (entry.getId().toString().equals(lastReadEntryId)) {
 				break;
 			}
 		}
-		List<Entry> result = entries.subList(index, entries.size());
+		List<Entry> result = unfilteredEntries.subList(indexOfLastReadEntry, unfilteredEntries.size());
 		return result;
 	}
 	
+	/**
+	 * Hämtar olästa entries från senast lästa entry tillsammans med entryts käll-feed. 
+	 * Antalet entries som returneras baseras på MAX_ENTRIES_PER_RUN.
+	 * 
+	 * @param feedId Identifierarer för feed som senast lästa entry finns i.
+	 * @param lastReadEntryId Identifierare för senast lästa entry.
+	 * @return En lista av olästa entries.
+	 */
 	public List<Entry> getEntries(String feedId, String lastReadEntryId) {
 		log.info("Attempting to get max " + MAX_ENTRIES_PER_RUN + " events from latest feed " + feedId + " and up.");
 		Feed f = getFeed(feedBase + feedId);
@@ -189,20 +274,42 @@ public class AtomClient {
 	}
 
 	/**
-	 * Extrahera "nästa feed url" ur en feed
+	 * Hjälpmetod för at hämta ut länkars värde ur en feed.
 	 * 
-	 * @param f
-	 * @return Url i strängform eller null om url saknas
+	 * @param f Den feed man vill extrahera länkar från.
+	 * @param linkname Namnet på länken.
+	 * @return URL för efterfrågad länk.
 	 */
-	private String getNextUrl(Feed f) {
+	private String getLinkHref(Feed f, String linkname) {
 		String retval = null;
 		for (Link link : f.getLinks()) {
-			if ("next-archive".equalsIgnoreCase(link.getRel())) {
+			if (linkname.equalsIgnoreCase(link.getRel())) {
 				retval = link.getAttributeValue("href");
 				retval = retval.replaceAll("http://mit[0-9]+-ladok3.its.umu.se:[0-9]+", "https://api.mit.ladok.se");
 				break;
 			}
 		}
-		return retval;
+		return retval;		
 	}
+	
+	/**
+	 * Hämtar URL till nästa arkiv i ordningen.
+	 * 
+	 * @param f Det arkiv man vill basera frågan på.
+	 * @return URL till nästa arkiv.
+	 */
+	private String getNextUrl(Feed f) {
+		return getLinkHref(f, LINK_NAME_NEXT_ARCHIVE);
+	}
+	
+	/**
+	 * Hämtar URL till föregående arkiv i ordningen.
+	 * 
+	 * @param f Det arkiv man vill basera frågan på.
+	 * @return URL till föregående arkiv.
+	 */
+	private String getPreviousUrl(Feed f) {
+		return getLinkHref(f, LINK_NAME_PREVIOUS_ARCHIVE);
+	}
+
 }
