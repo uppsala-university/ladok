@@ -124,26 +124,33 @@ public class AtomClient {
 	 */
 	private Feed getFeed(String url) {
 		log.info("Fetching feed: " + url);
-		try {
-			ClientResponse resp = getClient().get(url);
-			
-			if (resp.getType() == ResponseType.SUCCESS) {
-				Document<Feed> doc = resp.getDocument();
-				System.out.println(doc.getRoot().getTitle());
-				return (doc.getRoot());
-			} else {
-				
-				// Only accept success or client error (logical error).
-				if (resp.getType() != ResponseType.CLIENT_ERROR )
-					throw new UnexpectedClientResponseException(resp.getType().toString());
-				
-				return (null);
+		
+		Feed f = null;
+		
+		if (url != null) {
+			try {
+				ClientResponse resp = getClient().get(url);
+
+				if (resp.getType() == ResponseType.SUCCESS) {
+					Document<Feed> doc = resp.getDocument();
+					System.out.println(doc.getRoot().getTitle());
+					f = doc.getRoot();
+				} else {
+
+					// Only accept success or client error (logical error).
+					if (resp.getType() != ResponseType.CLIENT_ERROR)
+						throw new UnexpectedClientResponseException(resp
+								.getType().toString());
+
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+				log.error(e + " :: " + url);
 			}
-		} catch (Exception e) {
-			e.printStackTrace();
-			log.error(e + " :: " + url);
-			return (null);
 		}
+		
+		return f;
+	
 	}
 	
 	/**
@@ -154,15 +161,14 @@ public class AtomClient {
 	 */
 	private Feed findFirstFeed(Feed f) {
 
-		log.info("findFirstFeed: feed: " + f.getId());
-		Feed previous = getFeed(getPreviousUrl(f));
-		log.info("findFirstFeed: previous: " + previous.getId());
-		Feed first = null;
+		Feed first = f;		
 		
+		log.info("Finding first feed from: " + f.getId());
+		Feed previous = getFeed(getPreviousUrl(f));
+
 		while (previous != null) {
 			first = previous;
 			previous = getFeed(getPreviousUrl(previous));
-			log.info("findFirstFeed while f=" + first.getId());
 		}
 		
 		return first;		
@@ -177,6 +183,9 @@ public class AtomClient {
 	 * @return Idenfifeiraren för den första händelsen i en sammanslagning med identifieraren för hemvistarkivet.
 	 */
 	private String findFirstFeedIdAndFirstEntryId(Feed f) {
+		
+		log.info("Finding first feed and entry from: " + f.getBaseUri());
+		
 		Feed firstFeed = findFirstFeed(f);
 		if (firstFeed == null) {
 			return null;
@@ -208,15 +217,15 @@ public class AtomClient {
 		log.info("Attempting to get all events starting from  " + feedIdAndLastEntryId);
 
 		String[] parsed = null;
+		String firstId = null;
 		
 		if (feedIdAndLastEntryId != null && !feedIdAndLastEntryId.equals("0")) {
 			parsed = feedIdAndLastEntryId.split(FEED_ENTRY_SEPARATOR);
-			log.info("debug:        feedIdAndLastEntryId != null && !feedIdAndLastEntryId.equals");
 		} else {
-			log.info("debug:        else");
-			parsed = findFirstFeedIdAndFirstEntryId(getFeed(lastFeed)).split(FEED_ENTRY_SEPARATOR);
+			firstId = findFirstFeedIdAndFirstEntryId(getFeed(lastFeed));
+			if (firstId != null) 
+				parsed = firstId.split(FEED_ENTRY_SEPARATOR);
 		}
-		log.info("debug:        parsed:" + Arrays.asList(parsed));
 		
 		if (parsed == null)
 			throw new Exception("Ingen riktig utgångspunkt hittades för frågan.");
@@ -224,7 +233,7 @@ public class AtomClient {
 		String feedId = parsed[0];
 		String entryId = parsed[1];
 		
-		return getEntries(feedId, entryId);
+		return getEntries(feedId, (firstId == null ? entryId : null));
 	}
 
 
@@ -249,6 +258,7 @@ public class AtomClient {
 	 * @return En lista av olästa händelser.
 	 */
 	private List<Entry> filterOlderEntries(List<Entry> unfilteredEntries, String lastReadEntryId) {
+
 		int indexOfLastReadEntry = 0;
 		for (Entry entry : unfilteredEntries) {
 			indexOfLastReadEntry++;
@@ -256,6 +266,11 @@ public class AtomClient {
 				break;
 			}
 		}
+		
+		// We need to handle the first event to, passed as null.
+		if (lastReadEntryId == null)
+			indexOfLastReadEntry = 0;
+		
 		List<Entry> result = unfilteredEntries.subList(indexOfLastReadEntry, unfilteredEntries.size());
 		return result;
 	}
@@ -269,6 +284,7 @@ public class AtomClient {
 	 * @return En lista av olästa entries.
 	 */
 	private List<Entry> getEntries(String feedId, String lastReadEntryId) {
+		
 		log.info("Attempting to get max " + MAX_ENTRIES_PER_RUN + " events from latest feed " + feedId + " and up.");
 		Feed f = getFeed(feedBase + feedId);
 		List<Entry> entries = new ArrayList<Entry>();
