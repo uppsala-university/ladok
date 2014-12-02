@@ -1,4 +1,4 @@
-package se.uu.its.ladok.atom.test;
+package se.sunet.ati.ladok.atom;
 
 import java.util.List;
 
