@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.KeyStore;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
@@ -26,20 +25,21 @@ import org.apache.commons.logging.LogFactory;
 public class AtomClient {
 
 	public static final String FEED_ENTRY_SEPARATOR = ";";
+	public static String TOO_MANY_EVENTS_REQUESTED = "Too many events requested :-(";
+	private static int MAX_ENTRIES_PER_RUN = 100;
 	private static final String LINK_NAME_PREVIOUS_ARCHIVE = "prev-archive";
 	private static final String LINK_NAME_NEXT_ARCHIVE = "next-archive";
-	public static String TOO_MANY_EVENTS_REQUESTED = "Too many events requested :-(";
+	private static final String LINK_NAME_SELF = "self";
+
 	private String feedBase = null;
 	private String lastFeed = null;
 	private String certificateFile = null;
 	private String certificatePwd = null;
-	private Log log = LogFactory.getLog(this.getClass());
-	private static int MAX_ENTRIES_PER_RUN = 100;
-
-	private Properties properties;
 
 	private boolean useCert = false;
-
+	private Properties properties;	
+	
+	private Log log = LogFactory.getLog(this.getClass());
 
 	public AtomClient() throws Exception {
 		properties = new Properties();
@@ -91,16 +91,19 @@ public class AtomClient {
 	}
 
 	/**
-	 * Hämtar en klient för att hämta feeds.
+	 * Hämtar en Abdera-klient för att hämta feeds.
 	 * 
 	 * @return En klient som kan returnera feeds.
 	 * @throws Exception Om någonting i certifikatshanteringen fungerar.
  	 */
 	private AbderaClient getClient() throws Exception {
-		log.info("useCert=" + useCert);
+		
+		log.info("Using certificate: " + useCert);
+
 		Abdera abdera = new Abdera();
 		AbderaClient client = new AbderaClient(abdera);
 		KeyStore keystore;
+
 		try {
 			if (useCert) {
 				keystore = KeyStore.getInstance("PKCS12");
@@ -108,12 +111,13 @@ public class AtomClient {
 				ClientAuthSSLProtocolSocketFactory factory = new ClientAuthSSLProtocolSocketFactory(keystore, certificatePwd, "TLS",KeyManagerFactory.getDefaultAlgorithm(),null);
 				AbderaClient.registerFactory(factory, 443);
 			}
-			return(client);
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			throw new Exception(e.getMessage());
 		}
+
+		return client;
+		
 	}
 
 	/**
@@ -123,6 +127,7 @@ public class AtomClient {
 	 * @return Efterfrågad feed.
 	 */
 	private Feed getFeed(String url) {
+
 		log.info("Fetching feed: " + url);
 		
 		Feed f = null;
@@ -157,21 +162,22 @@ public class AtomClient {
 	 * Hämtar det första arkivet med händelser i hela systemet.
 	 * 
 	 * @param f Det arkiv som man man utgår från.
-	 * @return Det första arkivet i kedjan av händelsearkiv.
+	 * @return Det första arkivet i kedjan av händelsearkivet.
 	 */
 	private Feed findFirstFeed(Feed f) {
 
-		Feed first = f;		
+		log.info("Finding first feed from: " + f.getId());		
 		
-		log.info("Finding first feed from: " + f.getId());
-		Feed previous = getFeed(getPreviousUrl(f));
+		Feed first = f;		
+		Feed previous = getFeed(getPrevArchiveLink(f));
 
 		while (previous != null) {
 			first = previous;
-			previous = getFeed(getPreviousUrl(previous));
+			previous = getFeed(getPrevArchiveLink(previous));
 		}
 		
-		return first;		
+		return first;
+		
 	}
 	
 	/**
@@ -180,26 +186,35 @@ public class AtomClient {
 	 * som händelsen är dokumenterad i.
 	 * 
 	 * @param f Det arkiv som är utgångspunkten.
-	 * @return Idenfifeiraren för den första händelsen i en sammanslagning med identifieraren för hemvistarkivet.
+	 * @return Idenfifeiraren för den första händelsen i en sammanslagning 
+	 * med identifieraren för hemvistarkivet. Null om ingen hittades.
 	 */
 	private String findFirstFeedIdAndFirstEntryId(Feed f) {
 		
 		log.info("Finding first feed and entry from: " + f.getBaseUri());
 		
+		Entry firstEntry = null;
+		String selfLink = null;
+		String entityId = null;
+
 		Feed firstFeed = findFirstFeed(f);
 		if (firstFeed == null) {
 			return null;
 		}
-		List<Entry> entries = firstFeed.getEntries();
-		if (entries == null) {
-			return null;
+
+		List<Entry> entries = null;
+		if (firstFeed != null) {
+			entries = firstFeed.getEntries();
 		}
-		Entry firstEntry = entries.get(entries.size() - 1);
+
+		if (firstFeed != null && entries != null) {
+			firstEntry = entries.get(entries.size() - 1);			
+			selfLink = getSelfLink(firstFeed);
+			entityId = selfLink.substring(selfLink.lastIndexOf("/") + 1, selfLink.length()) + 
+					FEED_ENTRY_SEPARATOR + firstEntry.getId().toString();
+		}
 		
-		return firstFeed.getBaseUri().toString().substring(
-				firstFeed.getBaseUri().toString().lastIndexOf("/") + 1, 
-				firstFeed.getBaseUri().toString().length()) + 
-			FEED_ENTRY_SEPARATOR + firstEntry.getId().toString();
+		return entityId;
 	}
 	
 	/**
@@ -223,8 +238,10 @@ public class AtomClient {
 			parsed = feedIdAndLastEntryId.split(FEED_ENTRY_SEPARATOR);
 		} else {
 			firstId = findFirstFeedIdAndFirstEntryId(getFeed(lastFeed));
-			if (firstId != null) 
-				parsed = firstId.split(FEED_ENTRY_SEPARATOR);
+			if (firstId != null) {
+				log.info("Retrieving first id in archive structure: " + firstId);
+				parsed = firstId.split(FEED_ENTRY_SEPARATOR);				
+			}
 		}
 		
 		if (parsed == null)
@@ -259,6 +276,7 @@ public class AtomClient {
 	 */
 	private List<Entry> filterOlderEntries(List<Entry> unfilteredEntries, String lastReadEntryId) {
 
+		// Get the index of the next entry based on entry id of the last read entry.
 		int indexOfLastReadEntry = 0;
 		for (Entry entry : unfilteredEntries) {
 			indexOfLastReadEntry++;
@@ -290,8 +308,8 @@ public class AtomClient {
 		List<Entry> entries = new ArrayList<Entry>();
 		if (f != null) {
 			entries.addAll(filterOlderEntries(getSortedEntriesFromFeed(f), lastReadEntryId));
-			while (f != null && getNextUrl(f) != null && entries.size() < MAX_ENTRIES_PER_RUN) {
-				f = getFeed(getNextUrl(f));
+			while (f != null && getNextArchiveLink(f) != null && entries.size() < MAX_ENTRIES_PER_RUN) {
+				f = getFeed(getNextArchiveLink(f));
 				if (f != null) {
 					entries.addAll(getSortedEntriesFromFeed(f));
 				}
@@ -310,15 +328,19 @@ public class AtomClient {
 	 * @return URL för efterfrågad länk.
 	 */
 	private String getLinkHref(Feed f, String linkname) {
-		String retval = null;
+		String linkHref = null;
+		
 		for (Link link : f.getLinks()) {
 			if (linkname.equalsIgnoreCase(link.getRel())) {
-				retval = link.getAttributeValue("href");
-				retval = retval.replaceAll("http://mit[0-9]+-ladok3.its.umu.se:[0-9]+", "https://api.mit.ladok.se");
+				linkHref = link.getAttributeValue("href");
+				linkHref = linkHref.replaceAll("http://mit[0-9]+-ladok3.its.umu.se:[0-9]+", "https://api.mit.ladok.se");
 				break;
 			}
 		}
-		return retval;		
+		
+		log.info("Returning link '" + linkname + "':" + linkHref);
+		
+		return linkHref;		
 	}
 	
 	/**
@@ -327,7 +349,7 @@ public class AtomClient {
 	 * @param f Det arkiv man vill basera frågan på.
 	 * @return URL till nästa arkiv.
 	 */
-	private String getNextUrl(Feed f) {
+	private String getNextArchiveLink(Feed f) {
 		return getLinkHref(f, LINK_NAME_NEXT_ARCHIVE);
 	}
 	
@@ -337,10 +359,18 @@ public class AtomClient {
 	 * @param f Det arkiv man vill basera frågan på.
 	 * @return URL till föregående arkiv.
 	 */
-	private String getPreviousUrl(Feed f) {
-		String linkHref = getLinkHref(f, LINK_NAME_PREVIOUS_ARCHIVE);
-		log.info("getPreviousUrl linkHref: " + linkHref);
-		return linkHref;
+	private String getPrevArchiveLink(Feed f) {
+		return getLinkHref(f, LINK_NAME_PREVIOUS_ARCHIVE);
 	}
 
+	/**
+	 * Hämtar URL till det egna arkivet.
+	 * 
+	 * @param f Det arkiv man vill basera frågan på.
+	 * @return URL till föregående arkiv.
+	 */
+	private String getSelfLink(Feed f) {
+		return getLinkHref(f, LINK_NAME_SELF);
+	}
+	
 }
