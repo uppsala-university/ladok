@@ -5,8 +5,6 @@ import java.util.List;
 import org.apache.abdera.model.Entry;
 import org.junit.Test;
 
-import se.sunet.ati.ladok.atom.AtomClient;
-
 public class AtomClientTest {
 	
 	@Test
@@ -18,8 +16,9 @@ public class AtomClientTest {
 		
 		if (entries != null) {
 			System.out.println("Found " + entries.size() + " entries");
-			for(Entry e : entries) {
+			for (Entry e : entries) {
 				System.out.println("entryid: " + e.getId() + ", baseuri: " + e.getBaseUri());
+				System.out.println("Feed?" + e.getDocument().getRoot());
 			}
 		} else {
 			System.out.println("No entries found.");

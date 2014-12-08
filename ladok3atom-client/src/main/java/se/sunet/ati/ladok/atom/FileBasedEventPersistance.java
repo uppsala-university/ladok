@@ -13,8 +13,8 @@ import org.apache.commons.logging.LogFactory;
 public class FileBasedEventPersistance implements EventPersistance {
 	
 	private Log log = LogFactory.getLog(this.getClass());
-	private static String FILENAME="ladok.log";
-	private static String PROPERTY="last";
+	private static String PROPERTY_STORE_FILENAME="ladok.log";
+	private static String PROPERTY_LAST_READ_FEEDID_AND_ENTRYID ="last";
 	
 	static {
 		File f = new File("ladok.log");
@@ -29,19 +29,17 @@ public class FileBasedEventPersistance implements EventPersistance {
 	
 	@Override
 	public synchronized Entry saveEntry(Entry e) throws Exception{
-		// TODO: Feed id? :
-		String feedIdAndEventId = e.getDocument().getBaseUri().getPath().replaceAll("^.*/", "")
-				+ AtomClient.FEED_ENTRY_SEPARATOR + e.getId().toString();
+		String feedIdAndEventId = AtomUtil.getFeedIdAndEventId(e);
 		log.info("saveEntry feedIdAndEventId=" + feedIdAndEventId);
 		Properties prop = new Properties();
-		prop.setProperty(PROPERTY, feedIdAndEventId);
+		prop.setProperty(PROPERTY_LAST_READ_FEEDID_AND_ENTRYID, feedIdAndEventId);
 		try {
-			prop.store(new FileOutputStream(FILENAME), null);
+			prop.store(new FileOutputStream(PROPERTY_STORE_FILENAME), null);
 			log.info("Saving message: " + e.getId().toString());
-			return(e);
+			return e;
 		} catch (Exception e1) {
-			e1.printStackTrace();
-			return(null);
+			log.error(e1);
+			return null;
 		}
 	}
 
@@ -55,9 +53,9 @@ public class FileBasedEventPersistance implements EventPersistance {
 	public String getLastReadEntryId() {
 		Properties prop = new Properties();
 		try {
-			prop.load(new FileInputStream(FILENAME));
-			if (prop.containsKey(PROPERTY)) {
-				return (prop.getProperty(PROPERTY));
+			prop.load(new FileInputStream(PROPERTY_STORE_FILENAME));
+			if (prop.containsKey(PROPERTY_LAST_READ_FEEDID_AND_ENTRYID)) {
+				return (prop.getProperty(PROPERTY_LAST_READ_FEEDID_AND_ENTRYID));
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

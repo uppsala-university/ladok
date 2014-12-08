@@ -1,5 +1,10 @@
 package se.sunet.ati.ladok.atom;
 
+import static se.sunet.ati.ladok.atom.AtomUtil.getNextArchiveLink;
+import static se.sunet.ati.ladok.atom.AtomUtil.getPrevArchiveLink;
+import static se.sunet.ati.ladok.atom.AtomUtil.getSelfLink;
+import static se.sunet.ati.ladok.atom.AtomUtil.FEED_ENTRY_SEPARATOR;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.KeyStore;
@@ -14,7 +19,6 @@ import org.apache.abdera.Abdera;
 import org.apache.abdera.model.Document;
 import org.apache.abdera.model.Entry;
 import org.apache.abdera.model.Feed;
-import org.apache.abdera.model.Link;
 import org.apache.abdera.protocol.Response.ResponseType;
 import org.apache.abdera.protocol.client.AbderaClient;
 import org.apache.abdera.protocol.client.ClientResponse;
@@ -24,14 +28,9 @@ import org.apache.commons.logging.LogFactory;
 
 public class AtomClient {
 
-	public static final String FEED_ENTRY_SEPARATOR = ";";
 	public static String TOO_MANY_EVENTS_REQUESTED = "Too many events requested :-(";
 	private static int MAX_ENTRIES_PER_RUN = 100;
-	private static final String LINK_NAME_PREVIOUS_ARCHIVE = "prev-archive";
-	private static final String LINK_NAME_NEXT_ARCHIVE = "next-archive";
-	private static final String LINK_NAME_SELF = "self";
 
-	private String feedBase = null;
 	private String lastFeed = null;
 	private String certificateFile = null;
 	private String certificatePwd = null;
@@ -51,15 +50,13 @@ public class AtomClient {
 			
 			properties.load(in);
 			
-			if ((feedBase = properties.getProperty("feedbase")) == null) {
-				throw new Exception("Missing property \"feedbase\"");
+			
+			if (properties.getProperty("useCert") != null) {
+				log.info("useCert prop " + properties.getProperty("useCert"));
+				useCert = Boolean.valueOf(properties.getProperty("useCert"));
 			}
 
 			lastFeed = properties.getProperty("lastFeed");
-			
-			if (feedBase.startsWith("https")) {
-				useCert = true;
-			}
 			
 			// Check certificate and password.
 			if (useCert) {
@@ -210,8 +207,7 @@ public class AtomClient {
 		if (firstFeed != null && entries != null) {
 			firstEntry = entries.get(entries.size() - 1);			
 			selfLink = getSelfLink(firstFeed);
-			entityId = selfLink.substring(selfLink.lastIndexOf("/") + 1, selfLink.length()) + 
-					FEED_ENTRY_SEPARATOR + firstEntry.getId().toString();
+			entityId = selfLink + FEED_ENTRY_SEPARATOR + firstEntry.getId().toString();
 		}
 		
 		return entityId;
@@ -234,6 +230,7 @@ public class AtomClient {
 		String[] parsed = null;
 		String firstId = null;
 		
+		// TODO: Should not be needed: && !feedIdAndLastEntryId.equals("0")
 		if (feedIdAndLastEntryId != null && !feedIdAndLastEntryId.equals("0")) {
 			parsed = feedIdAndLastEntryId.split(FEED_ENTRY_SEPARATOR);
 		} else {
@@ -304,7 +301,7 @@ public class AtomClient {
 	private List<Entry> getEntries(String feedId, String lastReadEntryId) {
 		
 		log.info("Attempting to get max " + MAX_ENTRIES_PER_RUN + " events from latest feed " + feedId + " and up.");
-		Feed f = getFeed(feedBase + feedId);
+		Feed f = getFeed(feedId);
 		List<Entry> entries = new ArrayList<Entry>();
 		if (f != null) {
 			entries.addAll(filterOlderEntries(getSortedEntriesFromFeed(f), lastReadEntryId));
@@ -318,59 +315,6 @@ public class AtomClient {
 					+ " entries");
 		}
 		return entries;
-	}
-
-	/**
-	 * Hjälpmetod för at hämta ut länkars värde ur en feed.
-	 * 
-	 * @param f Den feed man vill extrahera länkar från.
-	 * @param linkname Namnet på länken.
-	 * @return URL för efterfrågad länk.
-	 */
-	private String getLinkHref(Feed f, String linkname) {
-		String linkHref = null;
-		
-		for (Link link : f.getLinks()) {
-			if (linkname.equalsIgnoreCase(link.getRel())) {
-				linkHref = link.getAttributeValue("href");
-				linkHref = linkHref.replaceAll("http://mit[0-9]+-ladok3.its.umu.se:[0-9]+", "https://api.mit.ladok.se");
-				break;
-			}
-		}
-		
-		log.info("Returning link '" + linkname + "':" + linkHref);
-		
-		return linkHref;		
-	}
-	
-	/**
-	 * Hämtar URL till nästa arkiv i ordningen.
-	 * 
-	 * @param f Det arkiv man vill basera frågan på.
-	 * @return URL till nästa arkiv.
-	 */
-	private String getNextArchiveLink(Feed f) {
-		return getLinkHref(f, LINK_NAME_NEXT_ARCHIVE);
-	}
-	
-	/**
-	 * Hämtar URL till föregående arkiv i ordningen.
-	 * 
-	 * @param f Det arkiv man vill basera frågan på.
-	 * @return URL till föregående arkiv.
-	 */
-	private String getPrevArchiveLink(Feed f) {
-		return getLinkHref(f, LINK_NAME_PREVIOUS_ARCHIVE);
-	}
-
-	/**
-	 * Hämtar URL till det egna arkivet.
-	 * 
-	 * @param f Det arkiv man vill basera frågan på.
-	 * @return URL till föregående arkiv.
-	 */
-	private String getSelfLink(Feed f) {
-		return getLinkHref(f, LINK_NAME_SELF);
 	}
 	
 }

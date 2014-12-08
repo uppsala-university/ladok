@@ -1,4 +1,4 @@
-feedbase=https://api.mit.ladok.se/uppfoljning/feed/
 lastFeed=https://api.mit.ladok.se/uppfoljning/feed/recent
+useCert=true
 certificateFile=<filename or certificate>
 certificatePwd=<password for certificate>
