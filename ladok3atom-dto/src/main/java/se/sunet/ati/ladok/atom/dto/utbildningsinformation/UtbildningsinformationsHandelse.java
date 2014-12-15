@@ -1,8 +1,8 @@
 package se.sunet.ati.ladok.atom.dto.utbildningsinformation;
 
-import se.sunet.ati.ladok.atom.dto.common.Handelse;
+import se.sunet.ati.ladok.atom.dto.Handelse;
 
-public class UtbildningsinformationsHandelse extends Handelse {
+public abstract class UtbildningsinformationsHandelse extends Handelse {
 
 	@Override
 	public String toString() {

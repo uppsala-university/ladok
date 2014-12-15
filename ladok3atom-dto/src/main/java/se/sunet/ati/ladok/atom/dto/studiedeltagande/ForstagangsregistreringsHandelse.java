@@ -6,8 +6,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement(name = "ForstagangsregistreringHandelse", namespace = "http://schemas.ladok.se/studiedeltagande")
 public class ForstagangsregistreringsHandelse extends StudiedeltagandeHandelse {
     
-    static public String TYPE = "http://schemas.ladok.se/studiedeltagande/ForstagangsregistreringHandelse";
-    
     String period;
     String tillfallesdeltagandeUid;
     String kurstillfalleUid;

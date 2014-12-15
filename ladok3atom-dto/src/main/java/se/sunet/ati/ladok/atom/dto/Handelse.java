@@ -1,10 +1,10 @@
-package se.sunet.ati.ladok.atom.dto.common;
+package se.sunet.ati.ladok.atom.dto;
 
 import java.util.Date;
 
 import javax.xml.bind.annotation.XmlElement;
 
-public class Handelse {
+public abstract class Handelse {
 
     String handelseUid;
     Date handelseTid;

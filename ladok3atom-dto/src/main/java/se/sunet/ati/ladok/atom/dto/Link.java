@@ -1,4 +1,4 @@
-package se.sunet.ati.ladok.atom.dto.common;
+package se.sunet.ati.ladok.atom.dto;
 
 import java.io.Serializable;
 

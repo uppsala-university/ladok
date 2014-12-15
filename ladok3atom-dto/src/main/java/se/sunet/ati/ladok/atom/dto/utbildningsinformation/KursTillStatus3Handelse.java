@@ -6,8 +6,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement(name = "KursTillStatus3Handelse", namespace = "http://schemas.ladok.se/utbildningsinformation")
 public class KursTillStatus3Handelse extends UtbildningsinformationsHandelse {
 	
-	public static String TYPE = "http://schemas.ladok.se/utbildningsinformation/KursTillStatus3Handelse";
-	
 	String handelseUID;
 	String kurskod;
 	
