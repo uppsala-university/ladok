@@ -10,7 +10,7 @@ import se.sunet.ati.ladok.atom.dto.studiedeltagande.ForstagangsregistreringsHand
 import se.sunet.ati.ladok.atom.dto.utbildningsinformation.KursTillStatus3Handelse;
 import se.sunet.ati.ladok.atom.dto.common.Handelse;
 
-public class XmlUnmarshaller  {
+public class XmlDeserializer  {
     
     public static Map<String, Class<? extends Handelse>> typeToEvent = new HashMap<String, Class<? extends Handelse>>();
 
@@ -20,7 +20,7 @@ public class XmlUnmarshaller  {
         typeToEvent.put(ForstagangsregistreringsHandelse.TYPE, ForstagangsregistreringsHandelse.class);
     }
 
-    public static Handelse unmarshal(String eventType, String xmlContent) throws Exception {
+    public static Handelse deserialize(String eventType, String xmlContent) throws Exception {
         if (typeToEvent.containsKey(eventType)) {
             Handelse h = (Handelse) JAXBContext
                     .newInstance(typeToEvent.get(eventType))

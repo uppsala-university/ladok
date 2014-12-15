@@ -6,7 +6,7 @@ import org.junit.Test;
 
 import se.sunet.ati.ladok.atom.dto.common.Handelse;
 import se.sunet.ati.ladok.atom.dto.studiedeltagande.ForstagangsregistreringsHandelse;
-import se.sunet.ati.ladok.atom.dto.util.XmlUnmarshaller;
+import se.sunet.ati.ladok.atom.dto.util.XmlDeserializer;
 
 public class LadokHandelserTest {
     
@@ -41,7 +41,7 @@ public class LadokHandelserTest {
                 "<sd:StudentUID>f590ab8f-5b38-4a4b-a23e-13d0c77950a7</sd:StudentUID>" + 
                 "<sd:TillfallesdeltagandeUID>c7fe9d98-3c85-4e5d-9a8b-34d6b64bba3b</sd:TillfallesdeltagandeUID>" + 
                 "</sd:ForstagangsregistreringHandelse>";
-        Handelse handelse = XmlUnmarshaller.unmarshal(
+        Handelse handelse = XmlDeserializer.deserialize(
         		ForstagangsregistreringsHandelse.TYPE, xml);
         assertNotNull(handelse);
         System.out.println("\n" + handelse.toString());
