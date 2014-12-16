@@ -13,6 +13,7 @@ public class AtomUtil {
 	public static final String LINK_NAME_PREVIOUS_ARCHIVE = "prev-archive";
 	public static final String LINK_NAME_NEXT_ARCHIVE = "next-archive";
 	public static final String LINK_NAME_SELF = "self";
+	public static final String LINK_NAME_VIA = "via";
 	
 	public static final String FEED_ENTRY_SEPARATOR = ";";
 
@@ -37,13 +38,24 @@ public class AtomUtil {
 	}
 
 	/**
+	 * Hämtar URL till via-länken.
+	 * 
+	 * @param f Det arkiv man vill basera frågan på.
+	 * @return URL till föregående arkiv.
+	 */
+	public static String getViaLink(Feed f) {
+		return getLinkHref(f, LINK_NAME_VIA);
+	}	
+	
+	/**
 	 * Hämtar URL till det egna arkivet.
 	 * 
 	 * @param f Det arkiv man vill basera frågan på.
 	 * @return URL till föregående arkiv.
 	 */
 	public static String getSelfLink(Feed f) {
-		return getLinkHref(f, LINK_NAME_SELF);
+		String via = getViaLink(f);
+		return via != null ? via : getLinkHref(f, LINK_NAME_SELF);
 	}
 	
 	public static String getSelfLink(Entry e) {
