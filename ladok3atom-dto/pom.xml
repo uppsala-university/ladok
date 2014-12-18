@@ -53,7 +53,7 @@
 						<Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
 						<Bundle-Description>${project.description}</Bundle-Description>
 						<Export-package>se.uu.its.ladok.feeds,se.uu.its.ladok.feeds.dto</Export-package>
-						<Import-package>org.apache.abdera,org.apache.abdera.parser.stax,org.apache.abdera.model</Import-package>
+						<Import-package>org.apache.abdera,org.apache.abdera.parser.stax,org.apache.abdera.model,org.reflections</Import-package>
 					</instructions>
 				</configuration>
 			</plugin>

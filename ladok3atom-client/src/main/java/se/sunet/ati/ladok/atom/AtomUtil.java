@@ -43,7 +43,7 @@ public class AtomUtil {
 	 * @param f Det arkiv man vill basera frågan på.
 	 * @return URL till föregående arkiv.
 	 */
-	public static String getViaLink(Feed f) {
+	private static String getViaLink(Feed f) {
 		return getLinkHref(f, LINK_NAME_VIA);
 	}	
 	
