@@ -5,8 +5,6 @@ import org.apache.abdera.model.Entry;
 /**
  * Ett interface som styr hur vi håller reda på vilka händelser som har setts.
  * 
- * @author john
- *
  */
 public interface EventPersistance {
 
