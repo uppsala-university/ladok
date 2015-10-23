@@ -1,4 +1,4 @@
-package se.sunet.ati.ladok.rest.services.test;
+package se.sunet.ati.ladok.rest.services.impl;
 
 import static org.junit.Assert.assertNotNull;
 
@@ -32,7 +32,7 @@ public class StudiedeltagandeTest {
 		Studiedeltagande st = new StudiedeltagandeImpl();
 		Student student = st.hamtaStudentViaPersonnummer("197209128672");
 		assertNotNull(student);
-		System.out.println("\n" + student.toString());
+		System.out.println("\nMeh:" + student.toString());
 
 //		assertNotNull("");
 //		Gson gson = new GsonBuilder().setPrettyPrinting().create();
