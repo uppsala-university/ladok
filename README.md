@@ -16,3 +16,4 @@ där informationsobjekten är helt fristående och där respektive klient har et
 För att hantera händelserna i java-kod på ett objektorienterat sätt behövs en översättning mellan XML-representationen och java-koden. Det som inom datavetenskap kallas deserialisering eller marshalling. Den omvända vägen, att ta objektrepresentation ur minnet för att skriva till disk eller transportera kallas serialisering eller unmarshalling. Översättningsrutinerna behövs både för REST och ATOM och gemensamma rutiner finns samlade i projektet
 
 * ladok3-dto-common
+*
