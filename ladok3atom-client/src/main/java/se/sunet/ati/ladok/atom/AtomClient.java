@@ -242,7 +242,7 @@ public class AtomClient {
 		}
 		
 		if (parsed == null)
-			throw new Exception("Ingen riktig utgångspunkt hittades för frågan.");
+			throw new Exception("No proper starting point for the feed found.");
 		
 		String feedId = parsed[0];
 		String entryId = parsed[1];

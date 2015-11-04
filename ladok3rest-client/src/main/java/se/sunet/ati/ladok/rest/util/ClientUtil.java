@@ -26,9 +26,6 @@ public class ClientUtil {
 		String restBase;
 		Properties properties = new Properties();
 
-	    //String studiedeltagandeUrl = "studiedeltagande/";
-
-	    
 		try {
 			InputStream in = thisClass.getClassLoader().getResourceAsStream("restclient.properties");
 			if (in == null) {

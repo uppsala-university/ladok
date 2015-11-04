@@ -47,7 +47,7 @@
 					<instructions>
 						<Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
 						<Bundle-Description>${project.description}</Bundle-Description>
-						<Export-package>se.uu.its.ladok.feeds,se.uu.its.ladok.atom</Export-package>
+						<Export-package>se.sunet.ati.ladok.atom</Export-package>
 						<Import-package>org.apache.abdera,org.apache.abdera.parser.stax,org.apache.abdera.model</Import-package>
 					</instructions>
 				</configuration>
