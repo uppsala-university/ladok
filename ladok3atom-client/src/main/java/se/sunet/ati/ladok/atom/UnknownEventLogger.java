@@ -14,22 +14,27 @@ public class UnknownEventLogger {
 	private static long count;
 	private Log log = LogFactory.getLog(this.getClass());
 	
-	
 	static {
 		File f = new File(DUMPDIR);
+		
 		if (!f.exists()) {
 				f.mkdir();
 		}
-		count=0;
+		
+		count = 0;
 	}
 
 	
 	public synchronized String dumpUnknownEntry(String s) throws IOException {
+
 		log.info("dumpUnknownEntry " + s);
-		PrintWriter out = new PrintWriter(DUMPDIR+"/"+count);
+		
+		PrintWriter out = new PrintWriter(DUMPDIR + "/" + count);
+		
 		out.print(s.toString());
 		out.close();
 		count++;
+		
 		return s;
 	}
 }
