@@ -17,9 +17,11 @@ public class AtomUtilTest {
 	@Test
 	public void testGetSelfLink() throws Exception {
 		 Parser parser = Abdera.getNewParser();
+		 
 		 InputStream in = this.getClass().getResourceAsStream("/files/ladok/feeds/1");
 		 Document<Feed> doc = parser.parse(in);
 		 String selfLink = AtomUtil.getSelfLink(doc.getRoot());
+		 
 		 assertEquals("http://localhost/ladok/feeds/1", selfLink);
 	}
 	
@@ -30,8 +32,10 @@ public class AtomUtilTest {
 		Document<Feed> doc = parser.parse(in);
 		Feed feed = doc.getRoot();
 		List<Entry> entries = feed.getEntries();
+		
 		for (Entry entry : entries) {
 			String feedIdAndEventId = AtomUtil.getFeedIdAndEventId(entry);
+			
 			assertEquals("1;02cb593f-8f06-4263-b5dd-5665a85f618b", feedIdAndEventId);
 			break;
 		}
