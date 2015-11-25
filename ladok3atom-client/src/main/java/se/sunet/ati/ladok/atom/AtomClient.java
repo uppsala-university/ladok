@@ -39,15 +39,19 @@ public class AtomClient {
 	private Properties properties;	
 	
 	private Log log = LogFactory.getLog(this.getClass());
+	private static String propertyFile = "atomclient.properties";
 
 	public AtomClient() throws Exception {
+		this(propertyFile);
+	}
+
+	public AtomClient(String propertyFile) throws Exception, IOException {
 		properties = new Properties();
 		try {
-			InputStream in = this.getClass().getClassLoader().getResourceAsStream("atomclient.properties");
+			InputStream in = this.getClass().getClassLoader().getResourceAsStream(propertyFile);
 			if (in == null) {
 				throw new Exception("Unable to find atomclient.properties (see atomclient.properties.sample)");
 			}
-			
 			properties.load(in);
 			
 			
