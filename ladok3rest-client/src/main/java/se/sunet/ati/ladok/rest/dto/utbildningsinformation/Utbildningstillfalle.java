@@ -16,13 +16,17 @@ public class Utbildningstillfalle implements Serializable {
 	@XmlElement(name = "Uid", namespace = "http://schemas.ladok.se")
 	String uid;
 	
-//	@XmlElement(name = "link", namespace = "http://schemas.ladok.se/dap")  
-//	List<Link> links;	
+	@XmlElement(name = "link", namespace = "http://schemas.ladok.se/dap")  
+	List<Link> links;	
 	
 	@XmlElement(name = "Tillfalleskod", namespace = "http://schemas.ladok.se")
 	String tillfalleskod;
 
 	public String getUid() {
 		return uid;
+	}
+	
+	public String gerTillfalleskod() {
+		return tillfalleskod;
 	}
 }
