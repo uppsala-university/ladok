@@ -32,6 +32,7 @@ public class AtomClient {
 	private static int MAX_ENTRIES_PER_RUN = 100;
 
 	private String lastFeed = null;
+
 	private String certificateFile = null;
 	private String certificatePwd = null;
 
@@ -42,10 +43,6 @@ public class AtomClient {
 	private static String propertyFile = "atomclient.properties";
 
 	public AtomClient() throws Exception {
-		this(propertyFile);
-	}
-
-	public AtomClient(String propertyFile) throws Exception, IOException {
 		properties = new Properties();
 		try {
 			InputStream in = this.getClass().getClassLoader().getResourceAsStream(propertyFile);
@@ -321,4 +318,36 @@ public class AtomClient {
 		return entries;
 	}
 	
+	public String getCertificateFile() {
+		return certificateFile;
+	}
+
+	public void setCertificateFile(String certificateFile) {
+		this.certificateFile = certificateFile;
+	}
+
+	public String getCertificatePwd() {
+		return certificatePwd;
+	}
+
+	public void setCertificatePwd(String certificatePwd) {
+		this.certificatePwd = certificatePwd;
+	}
+
+	public String getLastFeed() {
+		return lastFeed;
+	}
+
+	public void setLastFeed(String lastFeed) {
+		this.lastFeed = lastFeed;
+	}
+
+	public boolean isUseCert() {
+		return useCert;
+	}
+
+	public void setUseCert(boolean useCert) {
+		this.useCert = useCert;
+	}
+
 }
