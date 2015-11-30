@@ -36,13 +36,18 @@ public class AtomClient {
 	private String certificateFile = null;
 	private String certificatePwd = null;
 
-	private boolean useCert = false;
+	private String useCert = "false";
 	private Properties properties;	
 	
 	private Log log = LogFactory.getLog(this.getClass());
 	private static String propertyFile = "atomclient.properties";
 
 	public AtomClient() throws Exception {
+		init();
+	}
+
+	@SuppressWarnings("unused")
+	private void init() throws Exception {
 		properties = new Properties();
 		try {
 			InputStream in = this.getClass().getClassLoader().getResourceAsStream(propertyFile);
@@ -54,13 +59,13 @@ public class AtomClient {
 			
 			if (properties.getProperty("useCert") != null) {
 				log.info("useCert prop " + properties.getProperty("useCert"));
-				useCert = Boolean.valueOf(properties.getProperty("useCert"));
+				useCert = properties.getProperty("useCert");
 			}
 
 			lastFeed = properties.getProperty("lastFeed");
 			
 			// Check certificate and password.
-			if (useCert) {
+			if ("true".equals(useCert)) {
 				
 				certificateFile = properties.getProperty("certificateFile");
 				if (certificateFile == null || certificateFile.equals("")) {
@@ -103,7 +108,12 @@ public class AtomClient {
 		KeyStore keystore;
 
 		try {
-			if (useCert) {
+			if ("true".equals(useCert)) {
+				InputStream certificate = this.getClass().getClassLoader().getResourceAsStream(certificateFile);
+				if (certificate == null) {
+					throw new Exception("Property \"certificateFile\" have no corresponding resource.");
+				}
+
 				keystore = KeyStore.getInstance("PKCS12");
 				keystore.load(this.getClass().getClassLoader().getResourceAsStream(certificateFile), certificatePwd.toCharArray());
 				ClientAuthSSLProtocolSocketFactory factory = new ClientAuthSSLProtocolSocketFactory(keystore, certificatePwd, "TLS",KeyManagerFactory.getDefaultAlgorithm(),null);
@@ -342,11 +352,11 @@ public class AtomClient {
 		this.lastFeed = lastFeed;
 	}
 
-	public boolean isUseCert() {
+	public String getUseCert() {
 		return useCert;
 	}
 
-	public void setUseCert(boolean useCert) {
+	public void setUseCert(String useCert) {
 		this.useCert = useCert;
 	}
 
