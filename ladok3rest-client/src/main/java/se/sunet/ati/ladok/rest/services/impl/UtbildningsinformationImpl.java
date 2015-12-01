@@ -4,9 +4,7 @@ import javax.ws.rs.client.WebTarget;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.glassfish.jersey.filter.LoggingFilter;
 
-import se.sunet.ati.ladok.rest.dto.studiedeltagande.Student;
 import se.sunet.ati.ladok.rest.dto.utbildningsinformation.Utbildningstillfalle;
 import se.sunet.ati.ladok.rest.services.Utbildningsinformation;
 import se.sunet.ati.ladok.rest.util.ClientUtil;
