@@ -32,20 +32,22 @@ public class AtomClient {
 	private static int MAX_ENTRIES_PER_RUN = 100;
 
 	private String lastFeed = null;
+
 	private String certificateFile = null;
 	private String certificatePwd = null;
 
-	private boolean useCert = false;
+	private String useCert = "false";
 	private Properties properties;	
 	
 	private Log log = LogFactory.getLog(this.getClass());
 	private static String propertyFile = "atomclient.properties";
 
 	public AtomClient() throws Exception {
-		this(propertyFile);
+		init();
 	}
 
-	public AtomClient(String propertyFile) throws Exception, IOException {
+	@SuppressWarnings("unused")
+	private void init() throws Exception {
 		properties = new Properties();
 		try {
 			InputStream in = this.getClass().getClassLoader().getResourceAsStream(propertyFile);
@@ -57,13 +59,13 @@ public class AtomClient {
 			
 			if (properties.getProperty("useCert") != null) {
 				log.info("useCert prop " + properties.getProperty("useCert"));
-				useCert = Boolean.valueOf(properties.getProperty("useCert"));
+				useCert = properties.getProperty("useCert");
 			}
 
 			lastFeed = properties.getProperty("lastFeed");
 			
 			// Check certificate and password.
-			if (useCert) {
+			if ("true".equals(useCert)) {
 				
 				certificateFile = properties.getProperty("certificateFile");
 				if (certificateFile == null || certificateFile.equals("")) {
@@ -106,7 +108,12 @@ public class AtomClient {
 		KeyStore keystore;
 
 		try {
-			if (useCert) {
+			if ("true".equals(useCert)) {
+				InputStream certificate = this.getClass().getClassLoader().getResourceAsStream(certificateFile);
+				if (certificate == null) {
+					throw new Exception("Property \"certificateFile\" have no corresponding resource.");
+				}
+
 				keystore = KeyStore.getInstance("PKCS12");
 				keystore.load(this.getClass().getClassLoader().getResourceAsStream(certificateFile), certificatePwd.toCharArray());
 				ClientAuthSSLProtocolSocketFactory factory = new ClientAuthSSLProtocolSocketFactory(keystore, certificatePwd, "TLS",KeyManagerFactory.getDefaultAlgorithm(),null);
@@ -321,4 +328,36 @@ public class AtomClient {
 		return entries;
 	}
 	
+	public String getCertificateFile() {
+		return certificateFile;
+	}
+
+	public void setCertificateFile(String certificateFile) {
+		this.certificateFile = certificateFile;
+	}
+
+	public String getCertificatePwd() {
+		return certificatePwd;
+	}
+
+	public void setCertificatePwd(String certificatePwd) {
+		this.certificatePwd = certificatePwd;
+	}
+
+	public String getLastFeed() {
+		return lastFeed;
+	}
+
+	public void setLastFeed(String lastFeed) {
+		this.lastFeed = lastFeed;
+	}
+
+	public String getUseCert() {
+		return useCert;
+	}
+
+	public void setUseCert(String useCert) {
+		this.useCert = useCert;
+	}
+
 }
