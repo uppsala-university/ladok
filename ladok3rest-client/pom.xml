@@ -1,16 +1,19 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
-			     http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	
 	<modelVersion>4.0.0</modelVersion>
+	
 	<parent>
 		<groupId>se.sunet.ati.ladok</groupId>
 		<artifactId>ladok</artifactId>
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
+	
 	<artifactId>ladok3rest-client</artifactId>
 	<version>${parent.version}</version>
 	<packaging>bundle</packaging>
 	<name>Ladok 3 REST Client</name>
+	<description>A Ladok 3 REST Client as OSGi-bundle.</description>
 
 	<dependencies>
 		<dependency>
@@ -72,16 +75,18 @@
             			<Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
             			<Bundle-Description>${project.description}</Bundle-Description>
             			<Import-Package>
+            				org.osgi.service.blueprint,
             				javax.net.ssl,
 							javax.ws.rs.client;version="[2.0,3)",
 							javax.xml.bind.annotation,
 							org.apache.commons.logging;version="[1.0.4,1.3)",
+						</Import-Package>
+						<Export-Package>
+							se.sunet.ati.ladok.rest.services.impl,
 							se.sunet.ati.ladok.rest.dto.studiedeltagande,
 							se.sunet.ati.ladok.rest.dto.utbildningsinformation,
-							se.sunet.ati.ladok.rest.services,
-							se.sunet.ati.ladok.rest.util            
-						</Import-Package>
-						<Export-package>se.sunet.ati.ladok.rest.services.impl</Export-package>
+							se.sunet.ati.ladok.rest.services
+						</Export-Package>
           			</instructions>
         		</configuration>
       		</plugin>			
