@@ -28,7 +28,7 @@ import se.sunet.ati.ladok.rest.services.impl.StudiedeltagandeImpl;
 public class StudiedeltagandeTest {
 
 	@Test
-	public void test() throws Exception {
+	public void testHamtaStudentViaPersonnummer() throws Exception {
 		Studiedeltagande st = new StudiedeltagandeImpl();
 		Student student = st.hamtaStudentViaPersonnummer("197209128672");
 		assertNotNull(student);
