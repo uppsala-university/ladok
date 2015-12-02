@@ -30,7 +30,7 @@ public class StudiedeltagandeTest {
 	@Test
 	public void testHamtaStudentViaPersonnummer() throws Exception {
 		Studiedeltagande st = new StudiedeltagandeImpl();
-		Student student = st.hamtaStudentViaPersonnummer("197209128672");
+		Student student = st.hamtaStudentViaPersonnummer("199311168075");
 		assertNotNull(student);
 		System.out.println("\nMeh:" + student.toString());
 
