@@ -5,8 +5,11 @@ import static se.sunet.ati.ladok.atom.AtomUtil.getPrevArchiveLink;
 import static se.sunet.ati.ladok.atom.AtomUtil.getSelfLink;
 import static se.sunet.ati.ladok.atom.AtomUtil.FEED_ENTRY_SEPARATOR;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.security.KeyStore;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -33,8 +36,8 @@ public class AtomClient {
 
 	private String lastFeed = null;
 
-	private String certificateFile = null;
-	private String certificatePwd = null;
+	private String clientCertificateFile = null;
+	private String clientCertificatePwd = null;
 
 	private String useCert = "false";
 	private Properties properties;	
@@ -56,7 +59,6 @@ public class AtomClient {
 			}
 			properties.load(in);
 			
-			
 			if (properties.getProperty("useCert") != null) {
 				log.info("useCert prop " + properties.getProperty("useCert"));
 				useCert = properties.getProperty("useCert");
@@ -67,19 +69,21 @@ public class AtomClient {
 			// Check certificate and password.
 			if ("true".equals(useCert)) {
 				
-				certificateFile = properties.getProperty("certificateFile");
-				if (certificateFile == null || certificateFile.equals("")) {
+				clientCertificateFile = properties.getProperty("clientCertificateFile");
+				if (clientCertificateFile == null || clientCertificateFile.equals("")) {
 					throw new Exception("Missing property \"certificateFile\".");					
 				}
-				
-				if (this.getClass().getClassLoader().getResourceAsStream(certificateFile) == null) {
-					throw new Exception("Property \"certificateFile\" have no corresponding resource.");
+				if (!clientCertificateFile.substring(0, 1).equalsIgnoreCase("/")) {
+					clientCertificateFile = System.getProperty("user.home") + "/" + clientCertificateFile;
+					log.info("Using client certificate keystore path relative to home directory '" + System.getProperty("user.home")  + "'.");
 				}
+				if (!Files.exists(Paths.get(clientCertificateFile))) {
+					throw new Exception("Property \"clientCertificateFile\" (\"" + clientCertificateFile + "\") does not exist.");
+				}
+				log.info("Using client certificate keystore: " + clientCertificateFile);
 				
-				log.info("certificate=" + certificateFile);
-				
-				certificatePwd = properties.getProperty("certificatePwd");
-				if (certificatePwd == null || certificatePwd.equals("")) {
+				clientCertificatePwd = properties.getProperty("clientCertificatePwd");
+				if (clientCertificatePwd == null || clientCertificatePwd.equals("")) {
 					throw new Exception("Missing property \"certificatePwd\".");					
 				}
 				
@@ -105,18 +109,12 @@ public class AtomClient {
 
 		Abdera abdera = new Abdera();
 		AbderaClient client = new AbderaClient(abdera);
-		KeyStore keystore;
 
 		try {
 			if ("true".equals(useCert)) {
-				InputStream certificate = this.getClass().getClassLoader().getResourceAsStream(certificateFile);
-				if (certificate == null) {
-					throw new Exception("Property \"certificateFile\" have no corresponding resource.");
-				}
-
-				keystore = KeyStore.getInstance("PKCS12");
-				keystore.load(this.getClass().getClassLoader().getResourceAsStream(certificateFile), certificatePwd.toCharArray());
-				ClientAuthSSLProtocolSocketFactory factory = new ClientAuthSSLProtocolSocketFactory(keystore, certificatePwd, "TLS",KeyManagerFactory.getDefaultAlgorithm(),null);
+				KeyStore clientKeystore = KeyStore.getInstance("PKCS12");
+				clientKeystore.load(new FileInputStream(clientCertificateFile), clientCertificatePwd.toCharArray());
+				ClientAuthSSLProtocolSocketFactory factory = new ClientAuthSSLProtocolSocketFactory(clientKeystore, clientCertificatePwd, "TLS",KeyManagerFactory.getDefaultAlgorithm(),null);
 				AbderaClient.registerFactory(factory, 443);
 			}
 		} catch (Exception e) {
@@ -329,19 +327,19 @@ public class AtomClient {
 	}
 	
 	public String getCertificateFile() {
-		return certificateFile;
+		return clientCertificateFile;
 	}
 
 	public void setCertificateFile(String certificateFile) {
-		this.certificateFile = certificateFile;
+		this.clientCertificateFile = certificateFile;
 	}
 
 	public String getCertificatePwd() {
-		return certificatePwd;
+		return clientCertificatePwd;
 	}
 
 	public void setCertificatePwd(String certificatePwd) {
-		this.certificatePwd = certificatePwd;
+		this.clientCertificatePwd = certificatePwd;
 	}
 
 	public String getLastFeed() {
