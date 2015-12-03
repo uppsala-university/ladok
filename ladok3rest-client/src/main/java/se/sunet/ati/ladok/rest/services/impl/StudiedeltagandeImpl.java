@@ -17,8 +17,6 @@ public class StudiedeltagandeImpl implements Studiedeltagande {
     private static final String STUDIEDELTAGANDE_URL = "/studiedeltagande";
 	private static final String STUDIEDELTAGANDE_RESPONSE_TYPE = "application/vnd.ladok-studiedeltagande";
 	private static final String STUDIEDELTAGANDE_MEDIATYPE = "xml;charset=UTF-8";
-	private static final String CONTENT_TYPE_HEADER_NAME = "Content-Type";
-	private static final String CONTENT_TYPE_HEADER_VALUE = "application/vnd.ladok+xml";
 	private static final String RESOURCE_STUDENT = "student";
 	private static final String RESOURCE_STUDENT_CRITERIA = "personnummer";
 	
@@ -30,9 +28,14 @@ public class StudiedeltagandeImpl implements Studiedeltagande {
 
     @Override
     public Student hamtaStudentViaPersonnummer(String personnummer) throws Exception {
-    	String path = "/student/personnummer" + "/" + personnummer;
     	String responseType = STUDIEDELTAGANDE_RESPONSE_TYPE + "+" + STUDIEDELTAGANDE_MEDIATYPE;
-    	log.info("Query URL: " + studiedeltagande.getUri() + path + ", response type: " + responseType);
-    	return studiedeltagande.path(RESOURCE_STUDENT).path(RESOURCE_STUDENT_CRITERIA).path(personnummer).request().header(CONTENT_TYPE_HEADER_NAME, CONTENT_TYPE_HEADER_VALUE).accept(responseType).get(Student.class);
+    	log.info("Query URL: " + studiedeltagande.getUri() + "/student/personnummer" + "/" + personnummer + ", response type: " + responseType);
+    	return studiedeltagande.path(RESOURCE_STUDENT)
+    			.path(RESOURCE_STUDENT_CRITERIA)
+    			.path(personnummer)
+    			.request()
+    			.header(ClientUtil.CONTENT_TYPE_HEADER_NAME, ClientUtil.CONTENT_TYPE_HEADER_VALUE)
+    			.accept(responseType)
+    			.get(Student.class);
     }
 }

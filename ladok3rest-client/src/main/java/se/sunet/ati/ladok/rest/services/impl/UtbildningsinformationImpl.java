@@ -16,6 +16,7 @@ public class UtbildningsinformationImpl implements Utbildningsinformation{
     private static final String UTBILDNINGSINFORMATION_URL = "/utbildningsinformation";
     private static final String UTBILDNINGSINFORMATION_RESPONSE_TYPE = "application/vnd.ladok-utbildningsinformation";
     private static final String UTBILDNINGSINFORMATION_MEDIATYPE = "xml";
+    private static final String RESOURCE_UTBILDNINGSTILFALLE = "utbildningstillfalle";
 
     WebTarget utbildningsinformation;
     
@@ -26,10 +27,13 @@ public class UtbildningsinformationImpl implements Utbildningsinformation{
 	@Override
 	public Utbildningstillfalle hamtaUtbildningstillfalleViaUtbildningsUtbildningstillfalleUID(
 			String utbildningstillfalleUID) {
-
-    	String path = "/utbildningstillfalle/" + utbildningstillfalleUID;
     	String responseType = UTBILDNINGSINFORMATION_RESPONSE_TYPE + "+" + UTBILDNINGSINFORMATION_MEDIATYPE;
-    	log.info("Query URL: " + utbildningsinformation.getUri() + path + ", response type: " + responseType);
-    	return utbildningsinformation.path(path).request(responseType).get(Utbildningstillfalle.class);
+    	log.info("Query URL: " + utbildningsinformation.getUri() + "/utbildningstillfalle/" + utbildningstillfalleUID + ", response type: " + responseType);
+    	return utbildningsinformation.path(RESOURCE_UTBILDNINGSTILFALLE)
+    			.path(utbildningstillfalleUID)
+    			.request()
+    			.header(ClientUtil.CONTENT_TYPE_HEADER_NAME, ClientUtil.CONTENT_TYPE_HEADER_VALUE)
+    			.accept(responseType)
+    			.get(Utbildningstillfalle.class);
 	}
 }
