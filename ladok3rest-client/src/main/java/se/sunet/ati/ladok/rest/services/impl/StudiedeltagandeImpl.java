@@ -1,6 +1,7 @@
 package se.sunet.ati.ladok.rest.services.impl;
 
 import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.MediaType;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -15,8 +16,12 @@ public class StudiedeltagandeImpl implements Studiedeltagande {
 
     private static final String STUDIEDELTAGANDE_URL = "/studiedeltagande";
 	private static final String STUDIEDELTAGANDE_RESPONSE_TYPE = "application/vnd.ladok-studiedeltagande";
-	private static final String STUDIEDELTAGANDE_MEDIATYPE = "xml";
-
+	private static final String STUDIEDELTAGANDE_MEDIATYPE = "xml;charset=UTF-8";
+	private static final String CONTENT_TYPE_HEADER_NAME = "Content-Type";
+	private static final String CONTENT_TYPE_HEADER_VALUE = "application/vnd.ladok+xml";
+	private static final String RESOURCE_STUDENT = "student";
+	private static final String RESOURCE_STUDENT_CRITERIA = "personnummer";
+	
     WebTarget studiedeltagande;
 	
     public StudiedeltagandeImpl() throws Exception {
@@ -28,6 +33,6 @@ public class StudiedeltagandeImpl implements Studiedeltagande {
     	String path = "/student/personnummer" + "/" + personnummer;
     	String responseType = STUDIEDELTAGANDE_RESPONSE_TYPE + "+" + STUDIEDELTAGANDE_MEDIATYPE;
     	log.info("Query URL: " + studiedeltagande.getUri() + path + ", response type: " + responseType);
-    	return studiedeltagande.path(path).request(responseType).get(Student.class);
+    	return studiedeltagande.path(RESOURCE_STUDENT).path(RESOURCE_STUDENT_CRITERIA).path(personnummer).request().header(CONTENT_TYPE_HEADER_NAME, CONTENT_TYPE_HEADER_VALUE).accept(responseType).get(Student.class);
     }
 }
