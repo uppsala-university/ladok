@@ -84,7 +84,7 @@ public class ClientUtil {
 			throw e;
 		}
 
-		SSLContext sslContext = SSLContext.getInstance("SSLv3");
+		SSLContext sslContext = SSLContext.getInstance("TLSv1.2");
 		KeyManagerFactory kmf = KeyManagerFactory.getInstance( KeyManagerFactory.getDefaultAlgorithm() );	
 		
 		// Initiate client certificate key store and certificate trust store.
