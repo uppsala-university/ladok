@@ -2,24 +2,32 @@ package se.sunet.ati.ladok.rest.services.impl;
 
 import static org.junit.Assert.assertTrue;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.junit.Test;
 
 import se.sunet.ati.ladok.rest.dto.utbildningsinformation.Utbildningstillfalle;
 import se.sunet.ati.ladok.rest.services.Utbildningsinformation;
+import se.sunet.ati.ladok.rest.util.ClientUtil;
 
 public class UtbildningsinformationTest {
 
+	private static Log log = LogFactory.getLog(ClientUtil.class);
+	
 	@Test
 	public void testHamtaUtbildningstillfalle() throws Exception {
 		Utbildningsinformation ui = new UtbildningsinformationImpl();
 				
-		String utbildningstillfalleUID = "be5946ae-9370-11e5-bd1e-85b610744f1a";
+		String utbildningstillfalleUID = "3b652cd1-9a77-11e5-acb6-05a8d0524f2f";
 		
 		Utbildningstillfalle utbildningstillfalle = ui.hamtaUtbildningstillfalleViaUtbildningsUtbildningstillfalleUID(utbildningstillfalleUID);
 
+		log.debug("Hämtat kurstillfälleskod: " + utbildningstillfalle.getTillfalleskod());
+		log.debug("Hämtat utbildningstillfälle uid: " + utbildningstillfalle.getUid());
+		
 		assertTrue("Verkar inte ha funkat.", utbildningstillfalleUID.equalsIgnoreCase(utbildningstillfalle.getUid()));
 
-		System.out.println("\nMeh:" + utbildningstillfalle.toString());
+		log.debug("Utbildningstillfälle: " + utbildningstillfalle.toString());
 
 //		assertNotNull("");
 //		Gson gson = new GsonBuilder().setPrettyPrinting().create();
