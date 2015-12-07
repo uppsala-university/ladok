@@ -8,15 +8,26 @@ import static se.sunet.ati.ladok.atom.AtomUtil.FEED_ENTRY_SEPARATOR;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringReader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.KeyStore;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 
 import javax.net.ssl.KeyManagerFactory;
+import javax.xml.namespace.NamespaceContext;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
 
 import org.apache.abdera.Abdera;
 import org.apache.abdera.model.Document;
@@ -28,9 +39,12 @@ import org.apache.abdera.protocol.client.ClientResponse;
 import org.apache.abdera.protocol.client.util.ClientAuthSSLProtocolSocketFactory;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
 
 public class AtomClient {
 
+	private static final String XPATH_HANDELSEUID_SELECTOR = "/*/events:HandelseUID";
 	public static String TOO_MANY_EVENTS_REQUESTED = "Too many events requested :-(";
 	private static int MAX_ENTRIES_PER_RUN = 100;
 
@@ -286,9 +300,11 @@ public class AtomClient {
 		int indexOfLastReadEntry = 0;
 		for (Entry entry : unfilteredEntries) {
 			indexOfLastReadEntry++;
-			if (entry.getId().toString().equals(lastReadEntryId)) {
+			
+			if (getEntryId(entry.getContent()).equals(lastReadEntryId)) {
 				break;
 			}
+
 		}
 		
 		// We need to handle the first event to, passed as null.
@@ -299,6 +315,52 @@ public class AtomClient {
 		return result;
 	}
 	
+	/**
+	 * Extract an Ladok event identifier from a event XML source.
+	 * 
+	 * @param xml The event.
+	 * @return And identifier or empty string if not found.
+	 */
+	private String getEntryId(String xml) {
+		NamespaceContext nsContext = new NamespaceContext() {
+
+            @Override
+            public String getNamespaceURI(String prefix) {
+                return "http://schemas.ladok.se/events";
+            }
+
+            @Override
+            public String getPrefix(String namespaceURI) {
+                return "events";
+            }
+
+            @Override
+            public Iterator getPrefixes(String namespaceURI) {
+                Set s = new HashSet();
+                s.add("events");
+                return s.iterator();
+            }
+
+        };
+		
+		XPath xPath = XPathFactory.newInstance().newXPath();
+		xPath.setNamespaceContext(nsContext);
+
+		String entryId = "";
+		
+		try {
+			NodeList nList = (NodeList) xPath.evaluate(XPATH_HANDELSEUID_SELECTOR, new InputSource(new StringReader(xml)), XPathConstants.NODESET);
+			if (nList.getLength() == 1 && nList.item(0) != null) {
+				entryId = nList.item(0).getTextContent();
+				log.debug("Extracting entry id: " + nList.item(0).getTextContent() ) ;
+			}
+		} catch (XPathExpressionException e) {
+			e.printStackTrace();
+		}
+		
+		return entryId;
+	}
+
 	/**
 	 * Hämtar olästa entries från senast lästa entry tillsammans med entryts käll-feed. 
 	 * Antalet entries som returneras baseras på MAX_ENTRIES_PER_RUN.
