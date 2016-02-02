@@ -1,9 +1,9 @@
 package se.sunet.ati.ladok.atom;
 
+import static se.sunet.ati.ladok.atom.AtomUtil.FEED_ENTRY_SEPARATOR;
 import static se.sunet.ati.ladok.atom.AtomUtil.getNextArchiveLink;
 import static se.sunet.ati.ladok.atom.AtomUtil.getPrevArchiveLink;
 import static se.sunet.ati.ladok.atom.AtomUtil.getSelfLink;
-import static se.sunet.ati.ladok.atom.AtomUtil.FEED_ENTRY_SEPARATOR;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -22,8 +22,6 @@ import java.util.Set;
 
 import javax.net.ssl.KeyManagerFactory;
 import javax.xml.namespace.NamespaceContext;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
@@ -169,7 +167,6 @@ public class AtomClient {
 
 				}
 			} catch (Exception e) {
-				e.printStackTrace();
 				log.error(e + " :: " + url);
 			}
 		}
@@ -211,7 +208,9 @@ public class AtomClient {
 	 */
 	private String findFirstFeedIdAndFirstEntryId(Feed f) {
 		
-		log.info("Finding first feed and entry from: " + f.getBaseUri());
+		String baseUri = (f != null) ? f.getBaseUri().toString() : null;
+		
+		log.info("Finding first feed and entry from: " + baseUri);
 		
 		Entry firstEntry = null;
 		String selfLink = null;
@@ -257,7 +256,12 @@ public class AtomClient {
 		if (feedIdAndLastEntryId != null && !feedIdAndLastEntryId.equals("0")) {
 			parsed = feedIdAndLastEntryId.split(FEED_ENTRY_SEPARATOR);
 		} else {
-			firstId = findFirstFeedIdAndFirstEntryId(getFeed(lastFeed));
+			Feed feed = getFeed(lastFeed);
+			if (feed == null) {
+				log.warn("Feed " + lastFeed + " not available");
+				return new ArrayList<Entry>();
+			}
+			firstId = findFirstFeedIdAndFirstEntryId(feed);
 			if (firstId != null) {
 				log.info("Retrieving first id in archive structure: " + firstId);
 				parsed = firstId.split(FEED_ENTRY_SEPARATOR);				
