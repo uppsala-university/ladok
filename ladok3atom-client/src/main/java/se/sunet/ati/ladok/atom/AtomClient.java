@@ -156,7 +156,6 @@ public class AtomClient {
 
 				if (resp.getType() == ResponseType.SUCCESS) {
 					Document<Feed> doc = resp.getDocument();
-					System.out.println(doc.getRoot().getTitle());
 					f = doc.getRoot();
 				} else {
 
