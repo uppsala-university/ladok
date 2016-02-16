@@ -9,7 +9,7 @@ import se.sunet.ati.ladok.rest.dto.utbildningsinformation.Utbildningstillfalle;
 import se.sunet.ati.ladok.rest.services.Utbildningsinformation;
 import se.sunet.ati.ladok.rest.util.ClientUtil;
 
-public class UtbildningsinformationImpl implements Utbildningsinformation{
+public class UtbildningsinformationImpl extends LadokServicePropertiesImpl implements Utbildningsinformation{
 
     private static Log log = LogFactory.getLog(UtbildningsinformationImpl.class);
 
@@ -20,8 +20,11 @@ public class UtbildningsinformationImpl implements Utbildningsinformation{
 
     WebTarget utbildningsinformation;
     
-    public UtbildningsinformationImpl() throws Exception {
-        this.utbildningsinformation = ClientUtil.newClient(UTBILDNINGSINFORMATION_URL);
+    WebTarget getClient() {
+    	if (this.utbildningsinformation == null) {
+            this.utbildningsinformation = ClientUtil.newClient(this, UTBILDNINGSINFORMATION_URL);
+    	}
+    	return this.utbildningsinformation;
     }
 
 	@Override
@@ -29,7 +32,7 @@ public class UtbildningsinformationImpl implements Utbildningsinformation{
 			String utbildningstillfalleUID) {
     	String responseType = UTBILDNINGSINFORMATION_RESPONSE_TYPE + "+" + UTBILDNINGSINFORMATION_MEDIATYPE;
     	log.info("Query URL: " + utbildningsinformation.getUri() + "/utbildningstillfalle/" + utbildningstillfalleUID + ", response type: " + responseType);
-    	return utbildningsinformation.path(RESOURCE_UTBILDNINGSTILFALLE)
+    	return getClient().path(RESOURCE_UTBILDNINGSTILFALLE)
     			.path(utbildningstillfalleUID)
     			.request()
     			.header(ClientUtil.CONTENT_TYPE_HEADER_NAME, ClientUtil.CONTENT_TYPE_HEADER_VALUE)

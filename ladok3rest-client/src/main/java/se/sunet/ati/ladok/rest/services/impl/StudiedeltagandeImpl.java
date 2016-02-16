@@ -1,7 +1,6 @@
 package se.sunet.ati.ladok.rest.services.impl;
 
 import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.MediaType;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -10,7 +9,7 @@ import se.sunet.ati.ladok.rest.dto.studiedeltagande.Student;
 import se.sunet.ati.ladok.rest.services.Studiedeltagande;
 import se.sunet.ati.ladok.rest.util.ClientUtil;
 
-public class StudiedeltagandeImpl implements Studiedeltagande {
+public class StudiedeltagandeImpl extends LadokServicePropertiesImpl implements Studiedeltagande {
 	
 	private static Log log = LogFactory.getLog(StudiedeltagandeImpl.class);
 
@@ -22,15 +21,18 @@ public class StudiedeltagandeImpl implements Studiedeltagande {
 	
     WebTarget studiedeltagande;
 	
-    public StudiedeltagandeImpl() throws Exception {
-    	this.studiedeltagande = ClientUtil.newClient(STUDIEDELTAGANDE_URL);
+    WebTarget getClient() {
+    	if (this.studiedeltagande == null) {
+        	this.studiedeltagande = ClientUtil.newClient(this, STUDIEDELTAGANDE_URL);
+    	}
+    	return this.studiedeltagande;
     }
 
     @Override
-    public Student hamtaStudentViaPersonnummer(String personnummer) throws Exception {
+    public Student hamtaStudentViaPersonnummer(String personnummer) {
     	String responseType = STUDIEDELTAGANDE_RESPONSE_TYPE + "+" + STUDIEDELTAGANDE_MEDIATYPE;
     	log.info("Query URL: " + studiedeltagande.getUri() + "/student/personnummer" + "/" + personnummer + ", response type: " + responseType);
-    	return studiedeltagande.path(RESOURCE_STUDENT)
+    	return getClient().path(RESOURCE_STUDENT)
     			.path(RESOURCE_STUDENT_CRITERIA)
     			.path(personnummer)
     			.request()

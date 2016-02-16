@@ -8,7 +8,7 @@ import org.apache.commons.logging.LogFactory;
 import se.sunet.ati.ladok.rest.services.Kataloginformation;
 import se.sunet.ati.ladok.rest.util.ClientUtil;
 
-public class KataloginformationImpl implements Kataloginformation {
+public class KataloginformationImpl extends LadokServicePropertiesImpl implements Kataloginformation {
 
     private static Log log = LogFactory.getLog(KataloginformationImpl.class);
 
@@ -18,7 +18,10 @@ public class KataloginformationImpl implements Kataloginformation {
 
     WebTarget kataloginformation;
     
-    public KataloginformationImpl() throws Exception {
-        this.kataloginformation = ClientUtil.newClient(KATALOGINFORMATION_URL);
+    WebTarget getClient() throws Exception {
+    	if (this.kataloginformation == null) {
+            this.kataloginformation = ClientUtil.newClient(this, KATALOGINFORMATION_URL);
+    	}
+    	return this.kataloginformation;
     }
 }
