@@ -46,66 +46,78 @@ public class AtomClient {
 	public static String TOO_MANY_EVENTS_REQUESTED = "Too many events requested :-(";
 	private static int MAX_ENTRIES_PER_RUN = 100;
 
+	private boolean initialized = false;
 	private String lastFeed = null;
-
+	private String useCert = "false";
 	private String clientCertificateFile = null;
 	private String clientCertificatePwd = null;
-
-	private String useCert = "false";
-	private Properties properties;	
 	
 	private Log log = LogFactory.getLog(this.getClass());
 	private static String propertyFile = "atomclient.properties";
 
 	public AtomClient() throws Exception {
-		init();
+		// We don't initialize here, but instead initialize lazily to enable
+		// loading properties either from properties file when used stand alone
+		// or via dependency injection when used in an OSGi environment.
+		// init();
 	}
 
-	@SuppressWarnings("unused")
 	private void init() throws Exception {
-		properties = new Properties();
+		if (initialized) {
+			return; // Already initialized
+		}
+		loadProperties();
+		checkProperties();
+		initialized = true;
+	}
+	
+	private void loadProperties() throws Exception {
+		if (lastFeed != null) {
+			return; // Properties already loaded via setters
+		}
+		Properties properties = new Properties();
 		try {
 			InputStream in = this.getClass().getClassLoader().getResourceAsStream(propertyFile);
 			if (in == null) {
 				throw new Exception("Unable to find atomclient.properties (see atomclient.properties.sample)");
 			}
 			properties.load(in);
-			
+			lastFeed = properties.getProperty("lastFeed");
 			if (properties.getProperty("useCert") != null) {
-				log.info("useCert prop " + properties.getProperty("useCert"));
 				useCert = properties.getProperty("useCert");
 			}
-
-			lastFeed = properties.getProperty("lastFeed");
-			
-			// Check certificate and password.
 			if ("true".equals(useCert)) {
-				
 				clientCertificateFile = properties.getProperty("clientCertificateFile");
-				if (clientCertificateFile == null || clientCertificateFile.equals("")) {
-					throw new Exception("Missing property \"certificateFile\".");					
-				}
-				if (!clientCertificateFile.substring(0, 1).equalsIgnoreCase("/")) {
-					clientCertificateFile = System.getProperty("user.home") + "/" + clientCertificateFile;
-					log.info("Using client certificate keystore path relative to home directory '" + System.getProperty("user.home")  + "'.");
-				}
-				if (!Files.exists(Paths.get(clientCertificateFile))) {
-					throw new Exception("Property \"clientCertificateFile\" (\"" + clientCertificateFile + "\") does not exist.");
-				}
-				log.info("Using client certificate keystore: " + clientCertificateFile);
-				
 				clientCertificatePwd = properties.getProperty("clientCertificatePwd");
-				if (clientCertificatePwd == null || clientCertificatePwd.equals("")) {
-					throw new Exception("Missing property \"certificatePwd\".");					
-				}
-				
 			}
-			
-
 		}
 		catch (IOException e) {
 			log.error("Unable to read atomclient.properties");
 			throw e;
+		}
+	}
+	
+	private void checkProperties() throws Exception {
+		if (lastFeed == null) {
+			throw new Exception("Missing property \"lastFeed\".");
+		}
+		log.info("lastFeed: " + lastFeed);
+		log.info("useCert: " + useCert);
+		if ("true".equals(useCert)) {
+			if (clientCertificateFile == null || clientCertificateFile.equals("")) {
+				throw new Exception("Missing property \"certificateFile\".");
+			}
+			if (!clientCertificateFile.substring(0, 1).equalsIgnoreCase("/")) {
+				clientCertificateFile = System.getProperty("user.home") + "/" + clientCertificateFile;
+				log.info("Using client certificate keystore path relative to home directory '" + System.getProperty("user.home")  + "'.");
+			}
+			if (!Files.exists(Paths.get(clientCertificateFile))) {
+				throw new Exception("Property \"clientCertificateFile\" (\"" + clientCertificateFile + "\") does not exist.");
+			}
+			log.info("Using client certificate keystore: " + clientCertificateFile);
+			if (clientCertificatePwd == null || clientCertificatePwd.equals("")) {
+				throw new Exception("Missing property \"certificatePwd\".");
+			}
 		}
 	}
 
@@ -116,12 +128,9 @@ public class AtomClient {
 	 * @throws Exception Om någonting i certifikatshanteringen fungerar.
  	 */
 	private AbderaClient getClient() throws Exception {
-		
 		log.info("Using certificate: " + useCert);
-
 		Abdera abdera = new Abdera();
 		AbderaClient client = new AbderaClient(abdera);
-
 		try {
 			if ("true".equals(useCert)) {
 				KeyStore clientKeystore = KeyStore.getInstance("PKCS12");
@@ -133,9 +142,7 @@ public class AtomClient {
 			e.printStackTrace();
 			throw new Exception(e.getMessage());
 		}
-
 		return client;
-		
 	}
 
 	/**
@@ -247,10 +254,10 @@ public class AtomClient {
 	 */
 	public List<Entry> getEntries(String feedIdAndLastEntryId) throws Exception {
 		log.info("Attempting to get all events starting from  " + feedIdAndLastEntryId);
-
+		init();
 		String[] parsed = null;
 		String firstId = null;
-		
+
 		// TODO: Should not be needed: && !feedIdAndLastEntryId.equals("0")
 		if (feedIdAndLastEntryId != null && !feedIdAndLastEntryId.equals("0")) {
 			parsed = feedIdAndLastEntryId.split(FEED_ENTRY_SEPARATOR);
