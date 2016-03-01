@@ -20,6 +20,11 @@ public class UtbildningsinformationImpl extends LadokServicePropertiesImpl imple
 
     WebTarget utbildningsinformation;
     
+    /**
+	 * This method makes it possible to lazily constructing the web client,
+	 * which is needed in order to enable loading properties either from a
+	 * properties file or via dependency injection in an OSGi environment.
+	 */
     WebTarget getClient() {
     	if (this.utbildningsinformation == null) {
             this.utbildningsinformation = ClientUtil.newClient(this, UTBILDNINGSINFORMATION_URL);
