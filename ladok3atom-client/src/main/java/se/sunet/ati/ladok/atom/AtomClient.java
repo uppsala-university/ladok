@@ -46,7 +46,7 @@ public class AtomClient {
 	public static String TOO_MANY_EVENTS_REQUESTED = "Too many events requested :-(";
 	private static int MAX_ENTRIES_PER_RUN = 100;
 
-	private boolean initialized = false;
+	private boolean propertiesInitialized = false;
 	private String lastFeed = null;
 	private String useCert = "false";
 	private String clientCertificateFile = null;
@@ -63,12 +63,12 @@ public class AtomClient {
 	}
 
 	private void init() throws Exception {
-		if (initialized) {
+		if (propertiesInitialized) {
 			return; // Already initialized
 		}
 		loadProperties();
 		checkProperties();
-		initialized = true;
+		propertiesInitialized = true;
 	}
 	
 	private void loadProperties() throws Exception {
@@ -398,19 +398,19 @@ public class AtomClient {
 		return entries;
 	}
 	
-	public String getCertificateFile() {
+	public String getClientCertificateFile() {
 		return clientCertificateFile;
 	}
 
-	public void setCertificateFile(String certificateFile) {
+	public void setClientCertificateFile(String certificateFile) {
 		this.clientCertificateFile = certificateFile;
 	}
 
-	public String getCertificatePwd() {
+	public String getClientCertificatePwd() {
 		return clientCertificatePwd;
 	}
 
-	public void setCertificatePwd(String certificatePwd) {
+	public void setClientCertificatePwd(String certificatePwd) {
 		this.clientCertificatePwd = certificatePwd;
 	}
 
