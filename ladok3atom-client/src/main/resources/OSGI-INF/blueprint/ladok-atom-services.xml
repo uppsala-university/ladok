@@ -17,7 +17,7 @@
 
     <bean id="atomClient" class="se.sunet.ati.ladok.atom.AtomClient">
         <property name="lastFeed" value="${atom-client.lastFeed}" />
-        <property name="useCert" value="${latom-client.useCert}" />
+        <property name="useCert" value="${atom-client.useCert}" />
         <property name="clientCertificateFile" value="${atom-client.clientCertificateFile}" />
         <property name="clientCertificatePwd" value="${atom-client.clientCertificatePwd}" />
     </bean>
