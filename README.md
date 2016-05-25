@@ -16,3 +16,7 @@ För att hantera händelserna i java-kod på ett objektorienterat sätt behövs 
 
 * ladok3-dto-common
 
+## Build and deploy
+Build and deploy the new Ladok clients with Maven using
+
+	mvn install
