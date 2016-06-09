@@ -31,10 +31,11 @@ public class StudiedeltagandeImpl extends LadokServicePropertiesImpl implements 
     @Override
     public Student hamtaStudentViaPersonnummer(String personnummer) {
     	String responseType = STUDIEDELTAGANDE_RESPONSE_TYPE + "+" + STUDIEDELTAGANDE_MEDIATYPE;
-    	log.info("Query URL: " + studiedeltagande.getUri() + "/student/personnummer" + "/" + personnummer + ", response type: " + responseType);
-    	return getClient().path(RESOURCE_STUDENT)
+    	WebTarget client = getClient().path(RESOURCE_STUDENT)
     			.path(RESOURCE_STUDENT_CRITERIA)
-    			.path(personnummer)
+    			.path(personnummer);
+    	log.info("Query URL: " + client.getUri() + ", response type: " + responseType);
+    	return client
     			.request()
     			.header(ClientUtil.CONTENT_TYPE_HEADER_NAME, ClientUtil.CONTENT_TYPE_HEADER_VALUE)
     			.accept(responseType)

@@ -36,9 +36,9 @@ public class UtbildningsinformationImpl extends LadokServicePropertiesImpl imple
 	public Utbildningstillfalle hamtaUtbildningstillfalleViaUtbildningsUtbildningstillfalleUID(
 			String utbildningstillfalleUID) {
     	String responseType = UTBILDNINGSINFORMATION_RESPONSE_TYPE + "+" + UTBILDNINGSINFORMATION_MEDIATYPE;
-    	log.info("Query URL: " + utbildningsinformation.getUri() + "/utbildningstillfalle/" + utbildningstillfalleUID + ", response type: " + responseType);
-    	return getClient().path(RESOURCE_UTBILDNINGSTILFALLE)
-    			.path(utbildningstillfalleUID)
+    	WebTarget client = getClient().path(RESOURCE_UTBILDNINGSTILFALLE).path(utbildningstillfalleUID);
+    	log.info("Query URL: " + client.getUri() + ", response type: " + responseType);
+    	return client
     			.request()
     			.header(ClientUtil.CONTENT_TYPE_HEADER_NAME, ClientUtil.CONTENT_TYPE_HEADER_VALUE)
     			.accept(responseType)
