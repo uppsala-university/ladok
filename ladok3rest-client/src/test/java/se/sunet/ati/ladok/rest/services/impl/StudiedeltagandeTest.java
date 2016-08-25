@@ -21,7 +21,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 
-import se.sunet.ati.ladok.rest.dto.studiedeltagande.Student;
+import se.ladok.schemas.Student;
 import se.sunet.ati.ladok.rest.services.Studiedeltagande;
 import se.sunet.ati.ladok.rest.services.impl.StudiedeltagandeImpl;
 
@@ -32,7 +32,6 @@ public class StudiedeltagandeTest {
 		Studiedeltagande st = new StudiedeltagandeImpl();
 		Student student = st.hamtaStudentViaPersonnummer("199311168075");
 		assertNotNull(student);
-		System.out.println("\nMeh:" + student.toString());
 
 //		assertNotNull("");
 //		Gson gson = new GsonBuilder().setPrettyPrinting().create();

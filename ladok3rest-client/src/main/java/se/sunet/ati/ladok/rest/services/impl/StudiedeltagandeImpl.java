@@ -5,7 +5,7 @@ import javax.ws.rs.client.WebTarget;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import se.sunet.ati.ladok.rest.dto.studiedeltagande.Student;
+import se.ladok.schemas.Student;
 import se.sunet.ati.ladok.rest.services.Studiedeltagande;
 import se.sunet.ati.ladok.rest.util.ClientUtil;
 

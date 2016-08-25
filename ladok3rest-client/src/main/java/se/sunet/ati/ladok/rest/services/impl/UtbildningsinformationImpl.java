@@ -1,11 +1,15 @@
 package se.sunet.ati.ladok.rest.services.impl;
 
+import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.MediaType;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import se.sunet.ati.ladok.rest.dto.utbildningsinformation.Utbildningstillfalle;
+import se.ladok.schemas.Organisationslista;
+import se.ladok.schemas.utbildningsinformation.Utbildningsinstans;
+import se.ladok.schemas.utbildningsinformation.Utbildningstillfalle;
 import se.sunet.ati.ladok.rest.services.Utbildningsinformation;
 import se.sunet.ati.ladok.rest.util.ClientUtil;
 
@@ -17,6 +21,8 @@ public class UtbildningsinformationImpl extends LadokServicePropertiesImpl imple
     private static final String UTBILDNINGSINFORMATION_RESPONSE_TYPE = "application/vnd.ladok-utbildningsinformation";
     private static final String UTBILDNINGSINFORMATION_MEDIATYPE = "xml";
     private static final String RESOURCE_UTBILDNINGSTILFALLE = "utbildningstillfalle";
+    private static final String RESOURCE_UTBILDNINGSINSSTANS = "utbildningsinstans";
+    private static final String RESOURCE_ORGANISATION = "organisation";
 
     WebTarget utbildningsinformation;
     
@@ -43,5 +49,41 @@ public class UtbildningsinformationImpl extends LadokServicePropertiesImpl imple
     			.header(ClientUtil.CONTENT_TYPE_HEADER_NAME, ClientUtil.CONTENT_TYPE_HEADER_VALUE)
     			.accept(responseType)
     			.get(Utbildningstillfalle.class);
+	}
+
+	@Override
+	public Utbildningsinstans hamtaUtbildningsinstansViaUtbildningsinstansUID(String utbildningsinstansUID)  {
+    	String responseType = UTBILDNINGSINFORMATION_RESPONSE_TYPE + "+" + UTBILDNINGSINFORMATION_MEDIATYPE;
+    	WebTarget client = getClient().path(RESOURCE_UTBILDNINGSINSSTANS).path(utbildningsinstansUID);
+    	log.info("Query URL: " + client.getUri() + ", response type: " + responseType);
+    	return client
+    			.request()
+    			.header(ClientUtil.CONTENT_TYPE_HEADER_NAME, ClientUtil.CONTENT_TYPE_HEADER_VALUE)
+    			.accept(responseType)
+    			.get(Utbildningsinstans.class);
+	}
+
+	@Override
+	public Organisationslista sokAllaOrganisationer() {
+    	String responseType = UTBILDNINGSINFORMATION_RESPONSE_TYPE + "+" + UTBILDNINGSINFORMATION_MEDIATYPE;
+    	WebTarget client = getClient().path(RESOURCE_ORGANISATION);
+    	log.info("Query URL: " + client.getUri() + ", response type: " + responseType);
+    	return client
+    			.request()
+    			.header(ClientUtil.CONTENT_TYPE_HEADER_NAME, ClientUtil.CONTENT_TYPE_HEADER_VALUE)
+    			.accept(responseType)
+    			.get(Organisationslista.class);
+	}
+
+	@Override
+	public Utbildningsinstans skapaUtbildningsinstans(Utbildningsinstans utbildningsinstans) {
+    	String responseType = UTBILDNINGSINFORMATION_RESPONSE_TYPE + "+" + UTBILDNINGSINFORMATION_MEDIATYPE;
+    	String requestType = responseType;
+    	WebTarget client = getClient().path(RESOURCE_UTBILDNINGSINSSTANS);
+    	return client
+    			.request(MediaType.APPLICATION_XML_TYPE)
+    			.header(ClientUtil.CONTENT_TYPE_HEADER_NAME, ClientUtil.CONTENT_TYPE_HEADER_VALUE)
+    			.accept(responseType)
+    			.post(Entity.entity(utbildningsinstans, MediaType.APPLICATION_XML_TYPE), Utbildningsinstans.class);
 	}
 }

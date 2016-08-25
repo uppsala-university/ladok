@@ -1,6 +1,6 @@
 package se.sunet.ati.ladok.rest.services;
 
-import se.sunet.ati.ladok.rest.dto.studiedeltagande.Student;
+import se.ladok.schemas.Student;
 
 public interface Studiedeltagande extends LadokServiceProperties {
 	
