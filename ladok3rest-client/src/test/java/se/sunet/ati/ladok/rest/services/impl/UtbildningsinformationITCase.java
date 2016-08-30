@@ -12,6 +12,7 @@ import se.ladok.schemas.Benamningar;
 import se.ladok.schemas.Organisation;
 import se.ladok.schemas.Organisationslista;
 import se.ladok.schemas.utbildningsinformation.Kurs2007GrundAvancerad;
+import se.ladok.schemas.utbildningsinformation.Modul2007GrundAvancerad;
 import se.ladok.schemas.utbildningsinformation.PeriodID;
 import se.ladok.schemas.utbildningsinformation.Utbildningsinstans;
 import se.ladok.schemas.utbildningsinformation.Utbildningstillfalle;
@@ -23,10 +24,11 @@ public class UtbildningsinformationITCase {
 	private static Log log = LogFactory.getLog(UtbildningsinformationITCase.class);
 
 	private static final String datavetenskapOrganisationUID = "00000000-3300-0000-0043-000000000010";
+	private static final String utbildningsmallUID = "55555555-2007-0005-0001-000400000036";
 	private static final String utbildningstillfalleUID = "01010101-2222-3333-0043-000000002910";
 	private static final String utbildningstillfalleInstansUID = "01010101-2222-3333-0043-000000002371";
 
-	
+
 	Utbildningsinformation ui;
 
 	@Before
@@ -60,7 +62,7 @@ public class UtbildningsinformationITCase {
 		assertTrue(utbildningstillfalleUID.equals(utbildningstillfalle.getUid()));
 		assertTrue(utbildningstillfalleInstansUID.equals(utbildningstillfalle.getUtbildningsinstansUID()));
 	}
-	
+
 	@Test
 	public void testHamtaUtbildningsinstansViaUtbildningsinstansUID(){
 		Utbildningsinstans utbildningsinstans = ui
@@ -76,7 +78,7 @@ public class UtbildningsinformationITCase {
 			}
 		}
 	}
-	
+
 	@Test
 	public void testSkapaUtbildningsinstans(){
 		Utbildningsinstans uiToSave = new Utbildningsinstans();
@@ -90,18 +92,46 @@ public class UtbildningsinformationITCase {
 		uiToSave.setOrganisationUID(datavetenskapOrganisationUID);
 		uiToSave.setStatus(1);
 		uiToSave.setUtbildningstypID(24);
-		
+
 		Versionsinformation vInfo = new Versionsinformation();
 		vInfo.setArSenasteVersion(true);
 		vInfo.setVersionsnummer(1);
 		PeriodID pid = new PeriodID();
 		pid.setValue(43332);
 		vInfo.setGiltigFranPeriodID(pid);
-		
+
 		uiToSave.setVersionsinformation(vInfo);
-		
-        /*Utbildningsinstans savedIu = ui.skapaUtbildningsinstans(uiToSave);	*/	
-		
+
+        /*Utbildningsinstans savedIu = ui.skapaUtbildningsinstans(uiToSave);	*/
+
 		//uiToSave.setUtbildningskonfigurationUID(value);
+	}
+
+	@Test
+	public void testSkapaModul2007GrundAvancerad(){
+		Modul2007GrundAvancerad modul = new Modul2007GrundAvancerad();
+		Benamningar benamningar = new Benamningar();
+		Benamning svenska = new Benamning();
+		svenska.setSprakkod("sv");
+		svenska.setText("TEST_SVENSKA");
+		benamningar.getBenamning().add(svenska);
+		modul.setBenamningar(benamningar);
+		modul.setOmfattning("1.0");
+		modul.setOrganisationUID(datavetenskapOrganisationUID);
+		modul.setStatus(1);
+		modul.setUtbildningstypID(4);
+
+		Versionsinformation vInfo = new Versionsinformation();
+		vInfo.setArSenasteVersion(true);
+		vInfo.setVersionsnummer(1);
+		PeriodID pid = new PeriodID();
+		pid.setValue(43332);
+		vInfo.setGiltigFranPeriodID(pid);
+
+		modul.setVersionsinformation(vInfo);
+
+		//modul.setUtbildningsmallUID(utbildningsmallUID);
+
+		Utbildningsinstans savedIu = ui.skapaModul2007GrundAvanceradViaUtbildningsinstansUID(modul, utbildningstillfalleInstansUID);
 	}
 }

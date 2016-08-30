@@ -3,11 +3,14 @@ package se.sunet.ati.ladok.rest.services.impl;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
+import javax.xml.bind.JAXBElement;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import se.ladok.schemas.Organisationslista;
+import se.ladok.schemas.utbildningsinformation.Modul2007GrundAvancerad;
+import se.ladok.schemas.utbildningsinformation.ObjectFactory;
 import se.ladok.schemas.utbildningsinformation.Utbildningsinstans;
 import se.ladok.schemas.utbildningsinformation.Utbildningstillfalle;
 import se.sunet.ati.ladok.rest.services.Utbildningsinformation;
@@ -23,6 +26,7 @@ public class UtbildningsinformationImpl extends LadokServicePropertiesImpl imple
     private static final String RESOURCE_UTBILDNINGSTILFALLE = "utbildningstillfalle";
     private static final String RESOURCE_UTBILDNINGSINSSTANS = "utbildningsinstans";
     private static final String RESOURCE_ORGANISATION = "organisation";
+	private static final String RESOURCE_UNDERLIGGANDE = "underliggande";
 
     WebTarget utbildningsinformation;
     
@@ -85,5 +89,15 @@ public class UtbildningsinformationImpl extends LadokServicePropertiesImpl imple
     			.header(ClientUtil.CONTENT_TYPE_HEADER_NAME, ClientUtil.CONTENT_TYPE_HEADER_VALUE)
     			.accept(responseType)
     			.post(Entity.entity(utbildningsinstans, MediaType.APPLICATION_XML_TYPE), Utbildningsinstans.class);
+	}
+
+	@Override
+	public Modul2007GrundAvancerad skapaModul2007GrundAvanceradViaUtbildningsinstansUID(Modul2007GrundAvancerad modul, String utbildningsinstansUID) {
+		JAXBElement<Utbildningsinstans> modulJAXBElement = new ObjectFactory().createUtbildningsinstans(modul);
+		WebTarget client = getClient().path(RESOURCE_UTBILDNINGSINSSTANS).path(utbildningsinstansUID).path(RESOURCE_UNDERLIGGANDE);
+		return client
+				.request()
+				.header(ClientUtil.CONTENT_TYPE_HEADER_NAME, ClientUtil.CONTENT_TYPE_HEADER_VALUE)
+				.post(Entity.entity(modulJAXBElement, ClientUtil.CONTENT_TYPE_HEADER_VALUE), Modul2007GrundAvancerad.class);
 	}
 }
