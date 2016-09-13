@@ -11,8 +11,6 @@ import se.ladok.schemas.Benamning;
 import se.ladok.schemas.Benamningar;
 import se.ladok.schemas.Organisation;
 import se.ladok.schemas.Organisationslista;
-import se.ladok.schemas.utbildningsinformation.Kurs2007GrundAvancerad;
-import se.ladok.schemas.utbildningsinformation.Modul2007GrundAvancerad;
 import se.ladok.schemas.utbildningsinformation.PeriodID;
 import se.ladok.schemas.utbildningsinformation.Utbildningsinstans;
 import se.ladok.schemas.utbildningsinformation.Utbildningstillfalle;
@@ -108,18 +106,19 @@ public class UtbildningsinformationITCase {
 	}
 
 	@Test
-	public void testSkapaModul2007GrundAvancerad(){
-		Modul2007GrundAvancerad modul = new Modul2007GrundAvancerad();
+	public void testSkapaUnderliggandeUtbildningsinstans(){
+		Utbildningsinstans uiToSave = new Utbildningsinstans();
 		Benamningar benamningar = new Benamningar();
 		Benamning svenska = new Benamning();
 		svenska.setSprakkod("sv");
 		svenska.setText("TEST_SVENSKA");
 		benamningar.getBenamning().add(svenska);
-		modul.setBenamningar(benamningar);
-		modul.setOmfattning("1.0");
-		modul.setOrganisationUID(datavetenskapOrganisationUID);
-		modul.setStatus(1);
-		modul.setUtbildningstypID(4);
+		uiToSave.setBenamningar(benamningar);
+		uiToSave.setOmfattning("1.0");
+		uiToSave.setOrganisationUID(datavetenskapOrganisationUID);
+		uiToSave.setStatus(1);
+		uiToSave.setUtbildningstypID(4);
+		uiToSave.setUtbildningskod("TEST");
 
 		Versionsinformation vInfo = new Versionsinformation();
 		vInfo.setArSenasteVersion(true);
@@ -128,10 +127,14 @@ public class UtbildningsinformationITCase {
 		pid.setValue(43332);
 		vInfo.setGiltigFranPeriodID(pid);
 
-		modul.setVersionsinformation(vInfo);
+		uiToSave.setVersionsinformation(vInfo);
 
-		//modul.setUtbildningsmallUID(utbildningsmallUID);
+		/**
+		 *  The class Utbildningsinstans doesn't contain this setter
+		 *  when generating from the current XSDs.
+		 */
+		//uiToSave.setUtbildningsmallUID(utbildningsmallUID);
 
-		Utbildningsinstans savedIu = ui.skapaModul2007GrundAvanceradViaUtbildningsinstansUID(modul, utbildningstillfalleInstansUID);
+		Utbildningsinstans savedIu = ui.skapaUnderliggandeUtbildningsinstans(uiToSave, utbildningstillfalleInstansUID);
 	}
 }
