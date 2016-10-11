@@ -1,5 +1,9 @@
 package se.sunet.ati.ladok.rest.services.impl;
 
+import javax.ws.rs.BadRequestException;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import org.apache.commons.logging.Log;
@@ -21,10 +25,12 @@ public class UtbildningsinformationITCase {
 
 	private static Log log = LogFactory.getLog(UtbildningsinformationITCase.class);
 
-	private static final String datavetenskapOrganisationUID = "00000000-3300-0000-0043-000000000010";
-	private static final String utbildningsmallUID = "55555555-2007-0005-0001-000400000036";
-	private static final String utbildningstillfalleUID = "01010101-2222-3333-0043-000000002910";
-	private static final String utbildningstillfalleInstansUID = "01010101-2222-3333-0043-000000002371";
+	private static final String organisationUID = "b6b298a9-8e0f-11e6-9c62-ab9879144e80";
+	private static final String utbildningsmallUtbildningsinstansUID = "55555555-2007-0001-0001-000024000036";
+	private static final String utbildningsmallModulUID = "55555555-2007-0005-0001-000004000036";
+	private static final String utbildningstillfalleUID = "68616ef5-8e12-11e6-9c62-ab9879144e80";
+	private static final String utbildningstillfalleInstansUID = "1d5d97eb-8e11-11e6-9c62-ab9879144e80";
+	private static final int periodID = 174439; // HT16
 
 
 	Utbildningsinformation ui;
@@ -38,15 +44,15 @@ public class UtbildningsinformationITCase {
 	public void testSokAllaOrganisationer() {
 		Organisationslista organisationer = ui.sokAllaOrganisationer();
 		for (Organisation organisation : organisationer.getOrganisation()) {
-			if ("0000".equals(organisation.getKod())) {
+			if ("ITS".equals(organisation.getKod())) {
 				for (Benamning benamn : organisation.getBenamningar().getBenamning()) {
 					if (benamn.getSprakkod().equals("en")) {
-						assertTrue(benamn.getText().equals("Computer Science"));
+						assertTrue(benamn.getText().equals("- No translation available -"));
 					} else if (benamn.getSprakkod().equals("sv")) {
-						assertTrue(benamn.getText().equals("Datavetenskapliga institutionen"));
+						assertTrue(benamn.getText().equals("IT-sektionen, MDH"));
 					}
 				}
-				assertTrue(datavetenskapOrganisationUID.equals(organisation.getUid()));
+				assertTrue(organisationUID.equals(organisation.getUid()));
 			}
 		}
 	}
@@ -70,9 +76,9 @@ public class UtbildningsinformationITCase {
 
 		for (Benamning benamn : utbildningsinstans.getBenamningar().getBenamning()) {
 			if (benamn.getSprakkod().equals("en")) {
-				assertTrue(benamn.getText().equals("ENG_Automatateori"));
+				assertTrue(benamn.getText().equals("Additive manufacturing"));
 			} else if (benamn.getSprakkod().equals("sv")) {
-				assertTrue(benamn.getText().equals("Automatateori"));
+				assertTrue(benamn.getText().equals("Additiv tillverkning"));
 			}
 		}
 	}
@@ -86,27 +92,36 @@ public class UtbildningsinformationITCase {
 		svenska.setText("TEST_SVENSKA");
 		benamningar.getBenamning().add(svenska);
 		uiToSave.setBenamningar(benamningar);
-		uiToSave.setOmfattning("10");
-		uiToSave.setOrganisationUID(datavetenskapOrganisationUID);
+		uiToSave.setOmfattning("7.5");
+		uiToSave.setOrganisationUID(organisationUID);
 		uiToSave.setStatus(1);
 		uiToSave.setUtbildningstypID(24);
+		uiToSave.setUtbildningskod("TEST");
 
 		Versionsinformation vInfo = new Versionsinformation();
 		vInfo.setArSenasteVersion(true);
 		vInfo.setVersionsnummer(1);
 		PeriodID pid = new PeriodID();
-		pid.setValue(43332);
+		pid.setValue(periodID);
 		vInfo.setGiltigFranPeriodID(pid);
 
 		uiToSave.setVersionsinformation(vInfo);
+		uiToSave.setUtbildningsmallUID(utbildningsmallUtbildningsinstansUID);
 
-        /*Utbildningsinstans savedIu = ui.skapaUtbildningsinstans(uiToSave);	*/
-
-		//uiToSave.setUtbildningskonfigurationUID(value);
+		Utbildningsinstans savedIu = ui.skapaUtbildningsinstans(uiToSave);
+		assertNotNull(savedIu);
+		assertEquals(uiToSave.getUtbildningskod(), savedIu.getUtbildningskod());
 	}
 
-	@Test
-	public void testSkapaUnderliggandeUtbildningsinstans(){
+	/**
+	* Test för att skapa en underliggande Utbildningsinstans.
+	* Kräver att den överliggande utbildningsinstansen inte är i komplett status (3).
+	* Förväntat resultat är då att anropet mot {@link Utbildningsinformation#skapaUnderliggandeUtbildningsinstans} kastar {@link BadRequestException}.
+	*
+	* @throws Exception
+	*/
+	@Test(expected = BadRequestException.class)
+	public void testSkapaUnderliggandeUtbildningsinstans() throws Exception {
 		Utbildningsinstans uiToSave = new Utbildningsinstans();
 		Benamningar benamningar = new Benamningar();
 		Benamning svenska = new Benamning();
@@ -115,7 +130,7 @@ public class UtbildningsinformationITCase {
 		benamningar.getBenamning().add(svenska);
 		uiToSave.setBenamningar(benamningar);
 		uiToSave.setOmfattning("1.0");
-		uiToSave.setOrganisationUID(datavetenskapOrganisationUID);
+		uiToSave.setOrganisationUID(organisationUID);
 		uiToSave.setStatus(1);
 		uiToSave.setUtbildningstypID(4);
 		uiToSave.setUtbildningskod("TEST");
@@ -124,17 +139,12 @@ public class UtbildningsinformationITCase {
 		vInfo.setArSenasteVersion(true);
 		vInfo.setVersionsnummer(1);
 		PeriodID pid = new PeriodID();
-		pid.setValue(43332);
+		pid.setValue(periodID);
 		vInfo.setGiltigFranPeriodID(pid);
 
 		uiToSave.setVersionsinformation(vInfo);
+		uiToSave.setUtbildningsmallUID(utbildningsmallModulUID);
 
-		/**
-		 *  The class Utbildningsinstans doesn't contain this setter
-		 *  when generating from the current XSDs.
-		 */
-		//uiToSave.setUtbildningsmallUID(utbildningsmallUID);
-
-		Utbildningsinstans savedIu = ui.skapaUnderliggandeUtbildningsinstans(uiToSave, utbildningstillfalleInstansUID);
+		ui.skapaUnderliggandeUtbildningsinstans(uiToSave, utbildningstillfalleInstansUID);
 	}
 }
