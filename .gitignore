@@ -12,3 +12,5 @@ smx/
 .DS_Store
 atomclient.properties
 restclient.properties
+/.idea/
+*.iml
