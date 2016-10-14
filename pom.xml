@@ -1,79 +1,79 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0                              http://maven.apache.org/maven-v4_0_0.xsd">
-	<modelVersion>4.0.0</modelVersion>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
 
-	<groupId>se.sunet.ati.ladok</groupId>
-	<artifactId>ladok</artifactId>
-	<packaging>pom</packaging>
-	<version>1.0.0-SNAPSHOT</version>
-	<name>Ladok 3</name>
-	<properties>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-	</properties>
-	<modules>
-		<module>ladok3-dto</module>
-		<module>ladok3atom-client</module>
-		<module>ladok3rest-client</module>
-	</modules>
+  <groupId>se.sunet.ati.ladok</groupId>
+  <artifactId>ladok</artifactId>
+  <packaging>pom</packaging>
+  <version>1.0.0-SNAPSHOT</version>
+  <name>Ladok 3</name>
 
-	<build>
-		<pluginManagement>
-			<plugins>
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-compiler-plugin</artifactId>
-                                        <version>3.0</version>
-					<configuration>
-						<encoding>UTF-8</encoding>
-						<source>1.7</source>
-						<target>1.7</target>
-					</configuration>
-				</plugin>
-				<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-surefire-plugin</artifactId>
-				<version>2.19.1</version>
-				<executions>
-					<execution>
-						<id>default-test</id>
-						<phase>test</phase>
-						<goals>
-							<goal>test</goal>
-						</goals>
-						<configuration>
-							<includes>
-								<include>**/*TestCase.java</include>
-							</includes>
-							<excludes>
-								<exclude>**/*ITCase.java</exclude>
-							</excludes>
-						</configuration>
-					</execution>
-				</executions>
-				<configuration>
-					<!-- För att få samma resultat på olika operativsystem kör vi alltid 
-						testerna i alfabetisk ordning -->
-					<runOrder>alphabetical</runOrder>
-					<forkMode>once</forkMode>
-					<trimStackTrace>false</trimStackTrace>
-					<useFile>false</useFile>
-				</configuration>
-			        </plugin>
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
 
-			        <plugin>
-				  <groupId>org.apache.felix</groupId>
-				  <artifactId>maven-bundle-plugin</artifactId>
-				  <version>2.3.7</version>
-				  <extensions>true</extensions>
-				  <configuration>
-				    <instructions>
-				      <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-				      <Bundle-Description>${project.description}</Bundle-Description>
-				    </instructions>
-				  </configuration>
-			        </plugin>
-			</plugins>
-		</pluginManagement>
-	</build>
+  <modules>
+    <module>ladok3-dto</module>
+    <module>ladok3atom-client</module>
+    <module>ladok3rest-client</module>
+  </modules>
+
+  <build>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <version>3.0</version>
+          <configuration>
+            <encoding>UTF-8</encoding>
+            <source>1.7</source>
+            <target>1.7</target>
+          </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-surefire-plugin</artifactId>
+          <version>2.19.1</version>
+          <executions>
+            <execution>
+              <id>default-test</id>
+              <phase>test</phase>
+              <goals>
+                <goal>test</goal>
+              </goals>
+              <configuration>
+                <includes>
+                  <include>**/*TestCase.java</include>
+                </includes>
+                <excludes>
+                  <exclude>**/*ITCase.java</exclude>
+                </excludes>
+              </configuration>
+            </execution>
+          </executions>
+          <configuration>
+            <!-- För att få samma resultat på olika operativsystem kör vi alltid
+                    testerna i alfabetisk ordning -->
+            <runOrder>alphabetical</runOrder>
+            <forkMode>once</forkMode>
+            <trimStackTrace>false</trimStackTrace>
+            <useFile>false</useFile>
+          </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.felix</groupId>
+          <artifactId>maven-bundle-plugin</artifactId>
+          <version>2.3.7</version>
+          <extensions>true</extensions>
+          <configuration>
+            <instructions>
+              <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+              <Bundle-Description>${project.description}</Bundle-Description>
+            </instructions>
+          </configuration>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+  </build>
 </project>
