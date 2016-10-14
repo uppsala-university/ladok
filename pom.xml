@@ -4,19 +4,20 @@
 
   <groupId>se.sunet.ati.ladok</groupId>
   <artifactId>ladok</artifactId>
-  <packaging>pom</packaging>
   <version>1.0.0-SNAPSHOT</version>
-  <name>Ladok 3</name>
+  <packaging>pom</packaging>
 
-  <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-  </properties>
+  <name>Ladok 3</name>
 
   <modules>
     <module>ladok3-dto</module>
     <module>ladok3atom-client</module>
     <module>ladok3rest-client</module>
   </modules>
+
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
 
   <build>
     <pluginManagement>

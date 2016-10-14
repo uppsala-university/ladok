@@ -11,6 +11,7 @@
   <artifactId>ladok3atom-client</artifactId>
   <version>1.0.0-SNAPSHOT</version>
   <packaging>bundle</packaging>
+
   <name>Ladok 3 Atom Reader</name>
 
   <dependencies>
