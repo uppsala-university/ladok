@@ -114,9 +114,9 @@ public class UtbildningsinformationITCase {
 	}
 
 	/**
-	* Test för att skapa en underliggande Utbildningsinstans.
-	* Kräver att den överliggande utbildningsinstansen inte är i komplett status (3).
-	* Förväntat resultat är då att anropet mot {@link Utbildningsinformation#skapaUnderliggandeUtbildningsinstans} kastar {@link BadRequestException}.
+	* Test fÃ¶r att skapa en underliggande Utbildningsinstans.
+	* KrÃ¤ver att den Ã¶verliggande utbildningsinstansen inte Ã¤r i komplett status (3).
+	* FÃ¶rvÃ¤ntat resultat Ã¤r dÃ¥ att anropet mot {@link Utbildningsinformation#skapaUnderliggandeUtbildningsinstans} kastar {@link BadRequestException}.
 	*
 	* @throws Exception
 	*/
