@@ -25,7 +25,7 @@ import se.ladok.schemas.Student;
 import se.sunet.ati.ladok.rest.services.Studiedeltagande;
 import se.sunet.ati.ladok.rest.services.impl.StudiedeltagandeImpl;
 
-public class StudiedeltagandeTest {
+public class StudiedeltagandeITCase {
 
 	@Test
 	public void testHamtaStudentViaPersonnummer() throws Exception {
@@ -39,8 +39,8 @@ public class StudiedeltagandeTest {
 //		JsonElement je = jp.parse(st.hamtaStudentViaPersonnummer("197209128672"));
 //		String prettyJsonString = gson.toJson(je);
 //
-//		System.out.println(prettyJsonString);		
-		
+//		System.out.println(prettyJsonString);
+
 //		assertNotNull("");
 //		Source xmlInput = new StreamSource(new StringReader(st.hamtaStudentViaPersonnummer("194502051230")));
 //		StringWriter stringWriter = new StringWriter();
@@ -53,8 +53,8 @@ public class StudiedeltagandeTest {
 //				"{http://xml.apache.org/xslt}indent-amount",
 //				String.valueOf("4"));
 //		transformer.transform(xmlInput, xmlOutput);
-//		System.out.println(xmlOutput.getWriter().toString());		
-		
+//		System.out.println(xmlOutput.getWriter().toString());
+
 	}
 
 }
