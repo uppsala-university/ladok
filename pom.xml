@@ -32,7 +32,6 @@
           <artifactId>maven-compiler-plugin</artifactId>
           <version>3.5.1</version>
           <configuration>
-            <encoding>UTF-8</encoding>
             <source>1.7</source>
             <target>1.7</target>
           </configuration>
@@ -72,7 +71,6 @@
             <!-- För att få samma resultat på olika operativsystem kör vi alltid
                     testerna i alfabetisk ordning -->
             <runOrder>alphabetical</runOrder>
-            <forkMode>once</forkMode>
             <trimStackTrace>false</trimStackTrace>
             <useFile>false</useFile>
           </configuration>
