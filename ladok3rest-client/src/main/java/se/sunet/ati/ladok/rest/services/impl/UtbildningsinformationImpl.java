@@ -80,6 +80,7 @@ public class UtbildningsinformationImpl extends LadokServicePropertiesImpl imple
 
 	@Override
 	public Utbildningsinstans skapaUtbildningsinstans(Utbildningsinstans utbildningsinstans) {
+		JAXBElement<Utbildningsinstans> utbildningsinstansJAXBElement = new ObjectFactory().createUtbildningsinstans(utbildningsinstans);
 		String responseType = UTBILDNINGSINFORMATION_RESPONSE_TYPE + "+" + UTBILDNINGSINFORMATION_MEDIATYPE;
 		String requestType = responseType;
 		WebTarget client = getClient().path(RESOURCE_UTBILDNINGSINSSTANS);
@@ -87,7 +88,7 @@ public class UtbildningsinformationImpl extends LadokServicePropertiesImpl imple
 				.request(MediaType.APPLICATION_XML_TYPE)
 				.header(ClientUtil.CONTENT_TYPE_HEADER_NAME, ClientUtil.CONTENT_TYPE_HEADER_VALUE)
 				.accept(responseType)
-				.post(Entity.entity(utbildningsinstans, MediaType.APPLICATION_XML_TYPE), Utbildningsinstans.class);
+				.post(Entity.entity(utbildningsinstansJAXBElement, ClientUtil.CONTENT_TYPE_HEADER_VALUE), Utbildningsinstans.class);
 	}
 
 	@Override

@@ -25,12 +25,12 @@ public class UtbildningsinformationITCase {
 
 	private static Log log = LogFactory.getLog(UtbildningsinformationITCase.class);
 
-	private static final String organisationUID = "b6b298a9-8e0f-11e6-9c62-ab9879144e80";
+	private static final String organisationUID = "05c81ef6-9232-11e6-8ca9-ef169e22488c";
 	private static final String utbildningsmallUtbildningsinstansUID = "55555555-2007-0001-0001-000024000036";
 	private static final String utbildningsmallModulUID = "55555555-2007-0005-0001-000004000036";
 	private static final String utbildningstillfalleUID = "68616ef5-8e12-11e6-9c62-ab9879144e80";
 	private static final String utbildningstillfalleInstansUID = "1d5d97eb-8e11-11e6-9c62-ab9879144e80";
-	private static final int periodID = 174439; // HT16
+	private static final int periodID = 174050; // HT16
 
 
 	Utbildningsinformation ui;
@@ -107,6 +107,37 @@ public class UtbildningsinformationITCase {
 
 		uiToSave.setVersionsinformation(vInfo);
 		uiToSave.setUtbildningsmallUID(utbildningsmallUtbildningsinstansUID);
+
+		Utbildningsinstans savedIu = ui.skapaUtbildningsinstans(uiToSave);
+		assertNotNull(savedIu);
+		assertEquals(uiToSave.getUtbildningskod(), savedIu.getUtbildningskod());
+	}
+
+	@Test
+	public void testSkapaKurs() {
+		Utbildningsinstans uiToSave = new Utbildningsinstans();
+		Benamningar benamningar = new Benamningar();
+		Benamning svenska = new Benamning();
+		svenska.setSprakkod("sv");
+		svenska.setText("TEST_SVENSKA");
+		benamningar.getBenamning().add(svenska);
+		uiToSave.setBenamningar(benamningar);
+		uiToSave.setOmfattning("7.5");
+		uiToSave.setOrganisationUID(organisationUID);
+		uiToSave.setStatus(1);
+		// Kurs på grundnivå enl. 2007 förordn.
+		uiToSave.setUtbildningstypID(22);
+		uiToSave.setUtbildningskod("TEST");
+
+		Versionsinformation vInfo = new Versionsinformation();
+		vInfo.setArSenasteVersion(true);
+		vInfo.setVersionsnummer(1);
+		PeriodID pid = new PeriodID();
+		pid.setValue(periodID);
+		vInfo.setGiltigFranPeriodID(pid);
+
+		uiToSave.setVersionsinformation(vInfo);
+		uiToSave.setUtbildningsmallUID("55555555-2007-0001-0005-000022000036");
 
 		Utbildningsinstans savedIu = ui.skapaUtbildningsinstans(uiToSave);
 		assertNotNull(savedIu);
