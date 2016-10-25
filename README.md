@@ -1,10 +1,10 @@
 # Ladok Java integration clients
-This repository contains Java based components for communication with the new Ladok API. Both REST-based and events from the ATOM feed.
+This repository contains Java based components for communicating with the new Ladok API. One is REST-based and one gets events from the ATOM feed.
 
-Since the two new Ladok provided types of API are based on different protocols there is two clients, one for each protocol. 
+Since the two new Ladok provided API:s are based on different protocols there are two clients, one for each protocol: 
 
-* ladok3atom-client
-* ladok3rest-client
+* ladok3-atom-client
+* ladok3-rest-client
 
 The Java value objects (data transfer objects - DTO) is provided in a separate module:
 
@@ -12,7 +12,7 @@ The Java value objects (data transfer objects - DTO) is provided in a separate m
 
 The DTOs for marshalling/un-marshalling are generated from Ladok3 schema definitions. 
 
-## Build and deploy
-Build and deploy the new Ladok clients with Maven using
+## Build and install
+Build and install the new Ladok clients with Maven using
 
-	mvn install
+    mvn clean install
