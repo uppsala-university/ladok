@@ -11,8 +11,8 @@
 
   <modules>
     <module>ladok3-dto</module>
-    <module>ladok3atom-client</module>
-    <module>ladok3rest-client</module>
+    <module>ladok3-atom-client</module>
+    <module>ladok3-rest-client</module>
   </modules>
 
   <properties>
